@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -14,11 +15,15 @@ import androidx.compose.ui.graphics.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.Modifier
+import androidx.core.view.WindowCompat
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import com.shifa.quizquest.ui.theme.poppins
 
 class DashboardActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             DashboardScreen()
         }
@@ -35,22 +40,35 @@ fun DashboardScreen() {
         modifier = Modifier
             .fillMaxSize()
             .background(brush = backgroundGradient)
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
     ) {
-        Column {
-            HeaderSection(userName = "UserXXX", totalScore = 1234)
-            Spacer(modifier = Modifier.height(16.dp))
-            SummaryCards()
-            Spacer(modifier = Modifier.height(16.dp))
-            ActionButtons()
-            Spacer(modifier = Modifier.height(16.dp))
-            LeaderboardButton()
-            Spacer(modifier = Modifier.height(16.dp))
-            RecentQuizzes()
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(WindowInsets.statusBars
+                    .add(WindowInsets.navigationBars)
+                    .asPaddingValues())
+                    .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            item {
+                HeaderSection(userName = "UserXXX", totalScore = 1234)
+            }
+            item {
+                SummaryCards()
+            }
+            item {
+                ActionButtons()
+            }
+            item {
+                LeaderboardButton()
+            }
+            item {
+                RecentQuizzes()
+            }
         }
     }
 }
+
 
 @Composable
 fun HeaderSection(userName: String, totalScore: Int) {
@@ -228,7 +246,10 @@ fun RecentQuizzes() {
             color = Color.White
         )
         Spacer(modifier = Modifier.height(8.dp))
-        val quizzes = listOf("Matematika Dasar", "Sejarah Indonesia", "Bahasa Inggris")
+        val quizzes = listOf(
+            "Quiz Musik", "Quiz Film", "Sejarah", "Bahasa Inggris",
+            "Matematika Dasar", "Trivia", "Lawak", "Tebak Gambar", "Kebudayaan Indonesia"
+        )
         quizzes.forEach { quiz ->
             Card(
                 modifier = Modifier
@@ -258,6 +279,7 @@ fun RecentQuizzes() {
                     )
                 }
             }
+
         }
     }
 }
