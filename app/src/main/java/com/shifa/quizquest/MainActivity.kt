@@ -17,7 +17,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.compose.ui.text.style.TextAlign
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.shifa.quizquest.ui.theme.poppins
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.clickable
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,15 +32,28 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
-            QuizQuestApp()
+            val navController = rememberNavController()
+
+            NavHost(
+                navController = navController,
+                startDestination = Screen.Welcome.route
+            ) {
+                composable(Screen.Welcome.route) {
+                    QuizQuestApp(navController = navController)
+                }
+                composable(Screen.Login.route) {
+                    LoginScreen(navController = navController)
+                }
+                composable(Screen.Dashboard.route) {
+                    DashboardScreen()
+                }
+            }
         }
     }
 }
 
-
-
 @Composable
-fun QuizQuestApp() {
+fun QuizQuestApp(navController: NavController) {
     val isDark by remember { mutableStateOf(false) }
 
     val backgroundGradient = Brush.horizontalGradient(
@@ -56,7 +76,7 @@ fun QuizQuestApp() {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ) {
-                TopNavigationBar()
+                TopNavigationBar(navController = navController)
                 Spacer(modifier = Modifier.height(100.dp))
                 Text(
                     text = "Welcome to QuizQuest",
@@ -73,14 +93,15 @@ fun QuizQuestApp() {
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
-                }
             }
         }
     }
-
+}
 
 @Composable
-fun TopNavigationBar() {
+fun TopNavigationBar(navController: NavController) {
+    val context = LocalContext.current
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -98,24 +119,30 @@ fun TopNavigationBar() {
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            TopNavItem("Login")
-            TopNavItem("Signup")
+            TopNavItem("Login") {
+                Toast.makeText(context, "Navigasi ke Login Page!", Toast.LENGTH_SHORT).show()
+                navController.navigate(Screen.Login.route) {
+                    // Opsi: popUpTo Welcome.route jika ingin WelcomeScreen dihapus dari back stack
+                    // Contoh: agar tidak bisa kembali ke Welcome setelah klik login
+                    // popUpTo(Screen.Welcome.route) { inclusive = false } // false agar Welcome tetap ada di back stack
+                }
+            }
         }
     }
 }
 
 @Composable
-fun TopNavItem(title: String) {
+fun TopNavItem(title: String, onClick: () -> Unit) {
     Text(
         text = title,
         fontSize = 14.sp,
-        color = Color.White
+        color = Color.White,
+        modifier = Modifier.clickable { onClick() }
     )
 }
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun QuizQuestAppPreview() {
-    QuizQuestApp()
+    QuizQuestApp(navController = rememberNavController())
 }
-
