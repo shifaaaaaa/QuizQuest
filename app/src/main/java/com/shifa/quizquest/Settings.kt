@@ -239,7 +239,7 @@ fun SettingSlider(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp) // tambahkan horizontal padding agar rata kiri-kanan
+            .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Image(
