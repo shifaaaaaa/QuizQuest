@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.ui.tooling.preview.Preview
 import com.shifa.quizquest.ui.theme.poppins
 
 class DashboardActivity : ComponentActivity() {
@@ -47,7 +48,7 @@ fun DashboardScreen() {
                 .padding(WindowInsets.statusBars
                     .add(WindowInsets.navigationBars)
                     .asPaddingValues())
-                    .padding(horizontal = 16.dp),
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
@@ -115,14 +116,12 @@ fun HeaderSection(userName: String, totalScore: Int) {
                     text = { Text("Profile") },
                     onClick = {
                         expanded = false
-                        // TODO: Navigate to ProfileActivity
                     }
                 )
                 DropdownMenuItem(
                     text = { Text("Settings") },
                     onClick = {
                         expanded = false
-                        // TODO: Navigate to SettingsActivity
                     }
                 )
             }
@@ -187,7 +186,7 @@ fun SummaryCard(title: String, value: String, backgroundColor: Color) {
 fun ActionButtons() {
     Column {
         Button(
-            onClick = { /* TODO: Navigate to quiz */ },
+            onClick = {},
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
@@ -202,7 +201,7 @@ fun ActionButtons() {
         }
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedButton(
-            onClick = { /* TODO: Navigate to quiz history */ },
+            onClick = {},
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
@@ -224,7 +223,6 @@ fun ActionButtons() {
 fun LeaderboardButton() {
     Button(
         onClick = {
-            // TODO: Navigate to LeaderboardActivity
         },
         modifier = Modifier
             .fillMaxWidth()
@@ -284,4 +282,8 @@ fun RecentQuizzes() {
     }
 }
 
-
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun DashboardPreview() {
+    DashboardScreen()
+}
