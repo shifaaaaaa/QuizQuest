@@ -1,13 +1,13 @@
 package com.shifa.quizquest
 
 import androidx.compose.foundation.Image
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,12 +22,25 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.shifa.quizquest.ui.theme.poppins
+import android.util.Log
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(navController: NavController) {
     var nickname by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
+
+    // Default profil
+    var selectedImage by remember { mutableStateOf(R.drawable.profile1) }
+
+    // Daftar gambar profil
+    val profileImages = listOf(
+        R.drawable.profile1,
+        R.drawable.profile2,
+        R.drawable.profile3,
+        R.drawable.profile4,
+        R.drawable.profile5
+    )
 
     val backgroundGradient = Brush.horizontalGradient(
         colors = listOf(Color(0xFF85E4DC), Color(0xFF3FA1B7))
@@ -44,18 +57,28 @@ fun ProfileScreen(navController: NavController) {
             modifier = Modifier.padding(12.dp)
         ) {
 
-            Spacer(modifier = Modifier.height(100.dp))
-            // Foto utama
-            Box(
+            Spacer(modifier = Modifier.height(40.dp))
+
+            Text(
+                text = "Welcome",
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = poppins,
+                color = Color.Black
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Image(
+                painter = painterResource(id = selectedImage),
+                contentDescription = "Foto Profil",
                 modifier = Modifier
                     .size(120.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF4F7F7B))
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Nama Karakter
             Box(
                 modifier = Modifier
                     .background(Color(0xFFBFE9EC), RoundedCornerShape(12.dp))
@@ -79,7 +102,6 @@ fun ProfileScreen(navController: NavController) {
                 shape = RoundedCornerShape(20.dp)
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
-                    // Label Foto Profil
                     Text(
                         text = "Foto Profil",
                         fontWeight = FontWeight.Bold,
@@ -88,21 +110,24 @@ fun ProfileScreen(navController: NavController) {
                     )
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Circle icon pilihan foto
+                    // Profil Pictures
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        repeat(5) {
-                            Box(
+                        profileImages.forEach { imageRes ->
+                            Image(
+                                painter = painterResource(id = imageRes),
+                                contentDescription = "Foto Pilihan",
                                 modifier = Modifier
                                     .size(40.dp)
                                     .clip(CircleShape)
-                                    .background(Color.LightGray)
+                                    .clickable {
+                                        selectedImage = imageRes
+                                    }
                             )
                         }
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Nickname
                     Text(
                         text = "Nickname",
                         fontWeight = FontWeight.Bold,
@@ -129,7 +154,6 @@ fun ProfileScreen(navController: NavController) {
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Deskripsi
                     Text(
                         text = "Deskripsi",
                         fontWeight = FontWeight.Bold,
@@ -160,6 +184,9 @@ fun ProfileScreen(navController: NavController) {
 
                     Button(
                         onClick = {
+                            Log.d("PROFILE_SAVE", "Nickname: $nickname")
+                            Log.d("PROFILE_SAVE", "Deskripsi: $description")
+
                             navController.navigate("dashboard")
                         },
                         colors = ButtonDefaults.buttonColors(
@@ -168,8 +195,8 @@ fun ProfileScreen(navController: NavController) {
                         ),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier
-                            .padding(horizontal = 80.dp)
-                            .fillMaxWidth(0.9f)
+                            .align(Alignment.CenterHorizontally)
+                            .fillMaxWidth(0.6f)
                             .height(40.dp)
                     ) {
                         Text(
