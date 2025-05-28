@@ -24,7 +24,6 @@ import androidx.navigation.compose.rememberNavController
 import com.shifa.quizquest.ui.theme.poppins
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.foundation.clickable
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,6 +54,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun QuizQuestApp(navController: NavController) {
     val isDark by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     val backgroundGradient = Brush.horizontalGradient(
         colors = listOf(Color(0xFF85E4DC), Color(0xFF3FA1B7))
@@ -67,7 +67,12 @@ fun QuizQuestApp(navController: NavController) {
             modifier = Modifier
                 .fillMaxSize()
                 .background(brush = backgroundGradient)
-                .padding(top = 48.dp, bottom = 24.dp)
+                .padding(
+                    top = 48.dp,
+                    start = 16.dp,
+                    end = 16.dp,
+                    bottom = 16.dp
+                )
         ) {
             Column(
                 modifier = Modifier
@@ -76,13 +81,14 @@ fun QuizQuestApp(navController: NavController) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ) {
-                TopNavigationBar(navController = navController)
-                Spacer(modifier = Modifier.height(100.dp))
+                TopNavigationBar()
+                Spacer(modifier = Modifier.height(50.dp))
                 Text(
                     text = "Welcome to QuizQuest",
                     fontFamily = poppins,
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.ExtraBold
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
@@ -93,15 +99,34 @@ fun QuizQuestApp(navController: NavController) {
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
+                Spacer(modifier = Modifier.height(32.dp))
+
+                // Tombol Login
+                Button(
+                    onClick = {
+                        Toast.makeText(context, "Navigasi ke Login Page!", Toast.LENGTH_SHORT).show()
+                        navController.navigate(Screen.Login.route)
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3FA1B7)),
+                    modifier = Modifier
+                        .fillMaxWidth(0.6f)
+                        .height(50.dp)
+                ) {
+                    Text(
+                        text = "Login",
+                        fontFamily = poppins,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-fun TopNavigationBar(navController: NavController) {
-    val context = LocalContext.current
-
+fun TopNavigationBar() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -112,33 +137,10 @@ fun TopNavigationBar(navController: NavController) {
         Text(
             text = "QuizQuest",
             fontSize = 22.sp,
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.ExtraBold,
             color = Color.Black
         )
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            TopNavItem("Login") {
-                Toast.makeText(context, "Navigasi ke Login Page!", Toast.LENGTH_SHORT).show()
-                navController.navigate(Screen.Login.route) {
-                    // Opsi: popUpTo Welcome.route jika ingin WelcomeScreen dihapus dari back stack
-                    // Contoh: agar tidak bisa kembali ke Welcome setelah klik login
-                    // popUpTo(Screen.Welcome.route) { inclusive = false } // false agar Welcome tetap ada di back stack
-                }
-            }
-        }
     }
-}
-
-@Composable
-fun TopNavItem(title: String, onClick: () -> Unit) {
-    Text(
-        text = title,
-        fontSize = 14.sp,
-        color = Color.White,
-        modifier = Modifier.clickable { onClick() }
-    )
 }
 
 @Preview(showBackground = true, showSystemUi = true)
