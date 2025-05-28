@@ -1,4 +1,3 @@
-// LoginActivity.kt (atau di file LoginScreen.kt jika Anda memisahkannya)
 package com.shifa.quizquest
 
 import android.os.Bundle
