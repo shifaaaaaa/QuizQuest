@@ -1,3 +1,4 @@
+// LoginActivity.kt (atau di file LoginScreen.kt jika Anda memisahkannya)
 package com.shifa.quizquest
 
 import android.os.Bundle
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.shifa.quizquest.ui.theme.poppins
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,11 +37,14 @@ class LoginActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(
+    navController: NavController,
+    loginViewModel: LoginViewModel = viewModel()
+) {
     val context = LocalContext.current
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-
+    val email = loginViewModel.email
+    val password = loginViewModel.password
+    val errorMessage = loginViewModel.errorMessage
     val backgroundGradient = Brush.horizontalGradient(
         colors = listOf(Color(0xFF85E4DC), Color(0xFF3FA1B7))
     )
@@ -81,7 +86,7 @@ fun LoginScreen(navController: NavController) {
                     Spacer(modifier = Modifier.height(4.dp))
                     OutlinedTextField(
                         value = email,
-                        onValueChange = { email = it },
+                        onValueChange = { loginViewModel.onEmailChange(it) },
                         placeholder = { Text("Enter your email", fontSize = 14.sp) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
@@ -92,13 +97,13 @@ fun LoginScreen(navController: NavController) {
                         shape = RoundedCornerShape(8.dp)
                     )
                 }
-                // password
+                // Password
                 Column(horizontalAlignment = Alignment.Start, modifier = Modifier.fillMaxWidth()) {
                     Text(text = "Password", fontSize = 14.sp, fontFamily = poppins, fontWeight = FontWeight.Medium, color = Color.Gray)
                     Spacer(modifier = Modifier.height(4.dp))
                     OutlinedTextField(
                         value = password,
-                        onValueChange = { password = it },
+                        onValueChange = { loginViewModel.onPasswordChange(it) },
                         placeholder = { Text("Enter your password", fontSize = 14.sp) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
@@ -110,20 +115,32 @@ fun LoginScreen(navController: NavController) {
                         shape = RoundedCornerShape(8.dp)
                     )
                 }
+                errorMessage?.let { message ->
+                    Text(
+                        text = message,
+                        color = MaterialTheme.colorScheme.error,
+                        fontFamily = poppins,
+                        fontSize = 12.sp,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Login button
                 Button(
                     onClick = {
-                        if (email.isNotBlank() && password.isNotBlank()) {
-                            Toast.makeText(context, "Email: $email, Password: $password", Toast.LENGTH_SHORT).show()
-                            navController.navigate(Screen.Dashboard.route) {
-                                popUpTo(Screen.Welcome.route) { inclusive = true }
+                        loginViewModel.performLogin(
+                            onSuccess = {
+                                Toast.makeText(context, "Login Berhasil!", Toast.LENGTH_SHORT).show()
+                                navController.navigate(Screen.Dashboard.route) {
+                                    popUpTo(Screen.Welcome.route) { inclusive = true }
+                                }
+                            },
+                            onFailure = { errorMsg ->
+                                Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show()
                             }
-                        } else {
-                            Toast.makeText(context, "Email dan Password tidak boleh kosong!", Toast.LENGTH_SHORT).show()
-                        }
+                        )
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -142,7 +159,7 @@ fun LoginScreen(navController: NavController) {
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // pilihan signup
+                // Pilihan signup
                 Row(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
@@ -174,4 +191,3 @@ fun LoginScreen(navController: NavController) {
 fun LoginScreenPreview() {
     LoginScreen(navController = rememberNavController())
 }
-

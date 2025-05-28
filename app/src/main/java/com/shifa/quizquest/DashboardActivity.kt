@@ -116,14 +116,12 @@ fun HeaderSection(userName: String, totalScore: Int) {
                     text = { Text("Profile") },
                     onClick = {
                         expanded = false
-                        // TODO: Navigate to ProfileActivity
                     }
                 )
                 DropdownMenuItem(
                     text = { Text("Settings") },
                     onClick = {
                         expanded = false
-                        // TODO: Navigate to SettingsActivity
                     }
                 )
             }
@@ -188,7 +186,7 @@ fun SummaryCard(title: String, value: String, backgroundColor: Color) {
 fun ActionButtons() {
     Column {
         Button(
-            onClick = { /* TODO: Navigate to quiz */ },
+            onClick = {},
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
@@ -203,7 +201,7 @@ fun ActionButtons() {
         }
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedButton(
-            onClick = { /* TODO: Navigate to quiz history */ },
+            onClick = {},
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
@@ -225,7 +223,6 @@ fun ActionButtons() {
 fun LeaderboardButton() {
     Button(
         onClick = {
-            // TODO: Navigate to LeaderboardActivity
         },
         modifier = Modifier
             .fillMaxWidth()
