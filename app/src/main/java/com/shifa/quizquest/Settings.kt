@@ -109,7 +109,7 @@ fun SettingsScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Button(
-                onClick = {},
+                onClick = { /* TODO: change password */ },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFC98522),
                     contentColor = Color.White
@@ -124,7 +124,7 @@ fun SettingsScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Button(
-                onClick = {},
+                onClick = { navController.navigate(Screen.Login.route) },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFD74F4F),
                     contentColor = Color.White
