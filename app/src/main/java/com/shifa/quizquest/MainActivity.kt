@@ -42,11 +42,14 @@ class MainActivity : ComponentActivity() {
                     LoginScreen(navController = navController)
                 }
                 composable(Screen.Dashboard.route) {
-                    DashboardScreen()
+                    DashboardScreen(navController = navController)
                 }
-
-                composable(Screen.Profile.route) { ProfileScreen(navController) }
-                composable(Screen.Settings.route) { SettingsScreen(navController) }
+                composable(Screen.Profile.route) {
+                    ProfileScreen(navController = navController)
+                }
+                composable(Screen.Settings.route) {
+                    SettingsScreen(navController = navController)
+                }
             }
         }
     }

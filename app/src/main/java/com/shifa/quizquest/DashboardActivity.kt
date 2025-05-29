@@ -26,19 +26,22 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.shifa.quizquest.ui.theme.poppins
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavController
 
 class DashboardActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
-            DashboardScreen()
+            val navController = rememberNavController()
+            DashboardScreen(navController = navController)
         }
     }
 }
 
 @Composable
-fun DashboardScreen() {
+fun DashboardScreen(navController: NavController) {
     val backgroundGradient = Brush.verticalGradient(
         colors = listOf(Color(0xFF85E4DC), Color(0xFF3FA1B7))
     )
@@ -58,7 +61,7 @@ fun DashboardScreen() {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                HeaderSection(userName = "UserXXX", totalScore = 1234)
+                HeaderSection(userName = "UserXXX", totalScore = 1234, navController = navController)
             }
             item {
                 SummaryCards()
@@ -77,7 +80,7 @@ fun DashboardScreen() {
 }
 
 @Composable
-fun HeaderSection(userName: String, totalScore: Int) {
+fun HeaderSection(userName: String, totalScore: Int, navController: NavController) {
     var expanded by remember { mutableStateOf(false) }
 
     Row(
@@ -136,12 +139,14 @@ fun HeaderSection(userName: String, totalScore: Int) {
                     text = { Text("Profile") },
                     onClick = {
                         expanded = false
+                        navController.navigate(Screen.Profile.route)
                     }
                 )
                 DropdownMenuItem(
                     text = { Text("Settings") },
                     onClick = {
                         expanded = false
+                        navController.navigate(Screen.Settings.route)
                     }
                 )
             }
@@ -305,5 +310,5 @@ fun RecentQuizzes() {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun DashboardPreview() {
-    DashboardScreen()
+    DashboardScreen(navController = rememberNavController())
 }
