@@ -107,10 +107,6 @@ fun ProfileScreen(navController: NavController) {
     }
 }
 
-private fun ProfileDataStore.getProfile() {
-    TODO("Not yet implemented")
-}
-
 @Composable
 fun TitleSection() {
     Text(
