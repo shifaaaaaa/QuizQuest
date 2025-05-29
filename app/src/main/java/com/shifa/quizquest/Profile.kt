@@ -22,6 +22,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.shifa.quizquest.ui.theme.poppins
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 
 @Composable
 fun ProfileScreen(navController: NavController) {
@@ -47,32 +49,42 @@ fun ProfileScreen(navController: NavController) {
             .background(brush = backgroundGradient),
         contentAlignment = Alignment.TopCenter
     ) {
-        Column(
+        LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(12.dp)
+            modifier = Modifier
+                .padding(12.dp)
+                .fillMaxSize(),
+            contentPadding = PaddingValues(bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Spacer(modifier = Modifier.height(40.dp))
-            TitleSection()
-            Spacer(modifier = Modifier.height(20.dp))
-            ProfileImage(selectedImage)
-            Spacer(modifier = Modifier.height(24.dp))
-            NameSection()
-            Spacer(modifier = Modifier.height(24.dp))
-            FormCard(
-                profileImages = profileImages,
-                onImageSelected = { selectedImage = it },
-                nickname = nickname,
-                onNicknameChange = { if (it.length <= 16) nickname = it },
-                description = description,
-                onDescriptionChange = { if (it.length <= 40) description = it },
-                onSave = {
-                    Log.d("PROFILE_SAVE", "Nickname: $nickname")
-                    Log.d("PROFILE_SAVE", "Deskripsi: $description")
-                    navController.navigate("dashboard")
-                }
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            ReturnButton()
+            item {
+                Spacer(modifier = Modifier.height(40.dp))
+                TitleSection()
+            }
+            item {
+                ProfileImage(selectedImage)
+            }
+            item {
+                NameSection()
+            }
+            item {
+                FormCard(
+                    profileImages = profileImages,
+                    onImageSelected = { selectedImage = it },
+                    nickname = nickname,
+                    onNicknameChange = { if (it.length <= 16) nickname = it },
+                    description = description,
+                    onDescriptionChange = { if (it.length <= 40) description = it },
+                    onSave = {
+                        Log.d("PROFILE_SAVE", "Nickname: $nickname")
+                        Log.d("PROFILE_SAVE", "Deskripsi: $description")
+                        navController.navigate("dashboard")
+                    }
+                )
+            }
+            item {
+                ReturnButton(onClick = { navController.navigate("Dashboard") })
+            }
         }
     }
 }

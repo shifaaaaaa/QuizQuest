@@ -14,6 +14,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import com.shifa.quizquest.ui.theme.poppins
 
 @Composable
@@ -23,129 +25,136 @@ fun SettingsScreen() {
     var brightness by remember { mutableFloatStateOf(0.3f) }
     var fontSize by remember { mutableFloatStateOf(0.5f) }
 
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFDCDCDC))
             .padding(16.dp)
     ) {
-        Spacer(modifier = Modifier.height(16.dp))
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
 
-        // Header
-        Text(
-            text = "Settings",
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            fontFamily = poppins,
-            modifier = Modifier.padding(vertical = 12.dp)
-        )
+            Text(
+                text = "Settings",
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = poppins,
+                modifier = Modifier.padding(vertical = 12.dp)
+            )
 
-        Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
-        // Section: UI & Accessibility
-        SectionHeader("UI & Accessibility", Color(0xFF64A0CE))
-
-        SettingSlider(
-            iconResId = R.drawable.text,
-            label = "Fonts",
-            value = fontSize,
-            onValueChange = { fontSize = it }
-        )
-
-        SettingToggle(
-            iconResId = R.drawable.dark,
-            label = "Dark Mode",
-            isChecked = darkMode,
-            onCheckedChange = { darkMode = it }
-        )
-
-        SettingSlider(
-            iconResId = R.drawable.bright,
-            label = "Brightness",
-            value = brightness,
-            onValueChange = { brightness = it }
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Section: User & Account
-        SectionHeader("User & Account", Color(0xFFD77575))
-
-        SettingItem(iconResId = R.drawable.secret, label = "Privacy :")
-
-        SettingToggle(
-            iconResId = R.drawable.name,
-            label = "Show Nickname",
-            isChecked = showNickname,
-            onCheckedChange = { showNickname = it }
-        )
-
-        SettingItem(iconResId = R.drawable.name, label = "Credentials :")
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = { /* TODO: change email */ },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF40A9A0),
-                contentColor = Color.White
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(45.dp)
-        ) {
-            Text("Change Email", fontWeight = FontWeight.Bold)
+            SectionHeader("UI & Accessibility", Color(0xFF64A0CE))
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        item {
+            SettingSlider(
+                iconResId = R.drawable.text,
+                label = "Fonts",
+                value = fontSize,
+                onValueChange = { fontSize = it }
+            )
 
-        Button(
-            onClick = {},
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFC98522),
-                contentColor = Color.White
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(45.dp)
-        ) {
-            Text("Change Password", fontWeight = FontWeight.Bold)
+            SettingToggle(
+                iconResId = R.drawable.dark,
+                label = "Dark Mode",
+                isChecked = darkMode,
+                onCheckedChange = { darkMode = it }
+            )
+
+            SettingSlider(
+                iconResId = R.drawable.bright,
+                label = "Brightness",
+                value = brightness,
+                onValueChange = { brightness = it }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            SectionHeader("User & Account", Color(0xFFD77575))
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        item {
+            SettingItem(iconResId = R.drawable.secret, label = "Privacy :")
 
-        Button(
-            onClick = {},
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFD74F4F),
-                contentColor = Color.White
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(45.dp)
-        ) {
-            Text("Logout", fontWeight = FontWeight.Bold)
+            SettingToggle(
+                iconResId = R.drawable.name,
+                label = "Show Nickname",
+                isChecked = showNickname,
+                onCheckedChange = { showNickname = it }
+            )
+
+            SettingItem(iconResId = R.drawable.name, label = "Credentials :")
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Button(
-            onClick = {},
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF42AF6B),
-                contentColor = Color.White
-            ),
-            shape = RoundedCornerShape(12.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp)
-        ) {
-            Text("Return to Dashboard", fontWeight = FontWeight.Bold)
+            Button(
+                onClick = { /* TODO: change email */ },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF40A9A0),
+                    contentColor = Color.White
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(45.dp)
+            ) {
+                Text("Change Email", fontWeight = FontWeight.Bold)
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(
+                onClick = {},
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFC98522),
+                    contentColor = Color.White
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(45.dp)
+            ) {
+                Text("Change Password", fontWeight = FontWeight.Bold)
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(
+                onClick = {},
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFD74F4F),
+                    contentColor = Color.White
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(45.dp)
+            ) {
+                Text("Logout", fontWeight = FontWeight.Bold)
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Button(
+                onClick = {},
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF42AF6B),
+                    contentColor = Color.White
+                ),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+            ) {
+                Text("Return to Dashboard", fontWeight = FontWeight.Bold)
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }
 
-// Reusable section header
+// Section header
 @Composable
 fun SectionHeader(title: String, backgroundColor: Color) {
     Box(
@@ -164,7 +173,7 @@ fun SectionHeader(title: String, backgroundColor: Color) {
     }
 }
 
-// Reusable setting with icon and label (no action)
+// Icon + label only
 @Composable
 fun SettingItem(iconResId: Int, label: String) {
     Row(
@@ -188,7 +197,7 @@ fun SettingItem(iconResId: Int, label: String) {
     }
 }
 
-// Reusable toggle switch item
+// Switch toggle
 @Composable
 fun SettingToggle(
     iconResId: Int,
@@ -228,7 +237,7 @@ fun SettingToggle(
     }
 }
 
-// Reusable slider item
+// Slider item
 @Composable
 fun SettingSlider(
     iconResId: Int,
