@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -18,6 +19,11 @@ import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.shifa.quizquest.ui.theme.poppins
 
@@ -104,9 +110,24 @@ fun HeaderSection(userName: String, totalScore: Int) {
             Box(
                 modifier = Modifier
                     .size(48.dp)
-                    .background(Color.White, shape = CircleShape)
-                    .clickable { expanded = true }
-            )
+                    .clickable(
+                        indication = rememberRipple(bounded = true),
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) {
+                        expanded = true
+                    }
+                    .border(1.dp, Color.Gray, CircleShape)
+                    .shadow(2.dp, CircleShape)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.profile),
+                    contentDescription = "Profile Picture",
+                    contentScale = ContentScale.Inside,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(CircleShape)
+                )
+            }
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false }

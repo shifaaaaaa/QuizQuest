@@ -29,10 +29,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
-
         setContent {
             val navController = rememberNavController()
-
             NavHost(
                 navController = navController,
                 startDestination = Screen.Welcome.route
@@ -55,11 +53,9 @@ class MainActivity : ComponentActivity() {
 fun QuizQuestApp(navController: NavController) {
     val isDark by remember { mutableStateOf(false) }
     val context = LocalContext.current
-
     val backgroundGradient = Brush.horizontalGradient(
         colors = listOf(Color(0xFF85E4DC), Color(0xFF3FA1B7))
     )
-
     MaterialTheme(
         colorScheme = if (isDark) darkColorScheme() else lightColorScheme()
     ) {

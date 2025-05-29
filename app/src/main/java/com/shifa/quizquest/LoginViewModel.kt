@@ -40,7 +40,7 @@ class LoginViewModel : ViewModel() {
             onFailure(errorMessage!!)
             return
         }
-        if (email == "user@example.com" && password == "password123") {
+        if (email == "user@gmail.com" && password == "1234") {
             // Login sukses
             onSuccess()
         } else {
