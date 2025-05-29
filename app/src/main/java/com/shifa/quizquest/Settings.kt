@@ -17,9 +17,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import com.shifa.quizquest.ui.theme.poppins
+import com.shifa.quizquest.Screen
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavController
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(navController: NavController) {
     var darkMode by remember { mutableStateOf(false) }
     var showNickname by remember { mutableStateOf(true) }
     var brightness by remember { mutableFloatStateOf(0.3f) }
@@ -136,7 +139,7 @@ fun SettingsScreen() {
             Spacer(modifier = Modifier.height(20.dp))
 
             Button(
-                onClick = {},
+                onClick = { navController.navigate(Screen.Dashboard.route) },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF42AF6B),
                     contentColor = Color.White
@@ -278,5 +281,5 @@ fun SettingSlider(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun SettingsScreenPreview() {
-    SettingsScreen()
+    SettingsScreen(navController = rememberNavController())
 }

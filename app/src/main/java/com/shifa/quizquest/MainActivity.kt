@@ -44,6 +44,9 @@ class MainActivity : ComponentActivity() {
                 composable(Screen.Dashboard.route) {
                     DashboardScreen()
                 }
+
+                composable(Screen.Profile.route) { ProfileScreen(navController) }
+                composable(Screen.Settings.route) { SettingsScreen(navController) }
             }
         }
     }

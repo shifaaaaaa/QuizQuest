@@ -83,7 +83,7 @@ fun ProfileScreen(navController: NavController) {
                 )
             }
             item {
-                ReturnButton(onClick = { navController.navigate("Dashboard") })
+                ReturnButton(onClick = { navController.navigate(Screen.Dashboard.route) })
             }
         }
     }
@@ -223,11 +223,9 @@ fun ProfileImageRow(profileImages: List<Int>, onImageSelected: (Int) -> Unit) {
 }
 
 @Composable
-fun ReturnButton() {
+fun ReturnButton(onClick: () -> Unit) {
     Button(
-        onClick = {
-            // TODO: Navigate to DashboardActivity
-        },
+        onClick = onClick,
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFF42AF6B),
             contentColor = Color.White
