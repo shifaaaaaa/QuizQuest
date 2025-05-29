@@ -100,7 +100,7 @@ fun SettingsScreen() {
         Spacer(modifier = Modifier.height(8.dp))
 
         Button(
-            onClick = { /* TODO: change password */ },
+            onClick = {},
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFFC98522),
                 contentColor = Color.White
@@ -115,7 +115,7 @@ fun SettingsScreen() {
         Spacer(modifier = Modifier.height(8.dp))
 
         Button(
-            onClick = { /* TODO: Navigate to LoginActivity */ },
+            onClick = {},
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFFD74F4F),
                 contentColor = Color.White
@@ -130,7 +130,7 @@ fun SettingsScreen() {
         Spacer(modifier = Modifier.height(20.dp))
 
         Button(
-            onClick = { /* TODO: Navigate to DashboardActivity */ },
+            onClick = {},
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF42AF6B),
                 contentColor = Color.White
@@ -265,7 +265,6 @@ fun SettingSlider(
         )
     }
 }
-
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable

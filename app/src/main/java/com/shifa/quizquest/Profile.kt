@@ -23,7 +23,6 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.shifa.quizquest.ui.theme.poppins
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(navController: NavController) {
     var nickname by remember { mutableStateOf("") }

@@ -70,7 +70,6 @@ fun DashboardScreen() {
     }
 }
 
-
 @Composable
 fun HeaderSection(userName: String, totalScore: Int) {
     var expanded by remember { mutableStateOf(false) }
