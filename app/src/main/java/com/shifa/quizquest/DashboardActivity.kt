@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shifa.quizquest.ui.theme.poppins
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavController
@@ -41,7 +42,9 @@ class DashboardActivity : ComponentActivity() {
 }
 
 @Composable
-fun DashboardScreen(navController: NavController) {
+fun DashboardScreen(navController: NavController, viewModel: DashboardViewModel = viewModel()) {
+    val profile by viewModel.profileData.collectAsState()
+
     val backgroundGradient = Brush.verticalGradient(
         colors = listOf(Color(0xFF85E4DC), Color(0xFF3FA1B7))
     )
@@ -54,45 +57,42 @@ fun DashboardScreen(navController: NavController) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(WindowInsets.statusBars
-                    .add(WindowInsets.navigationBars)
-                    .asPaddingValues())
+                .padding(WindowInsets.statusBars.add(WindowInsets.navigationBars).asPaddingValues())
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                HeaderSection(userName = "UserXXX", totalScore = 1234, navController = navController)
+                HeaderSection(
+                    userName = profile.nickname.ifBlank { "Pengguna" },
+                    totalScore = 1234,
+                    imageResId = profile.imageRes,
+                    navController = navController
+                )
             }
-            item {
-                SummaryCards()
-            }
-            item {
-                ActionButtons()
-            }
-            item {
-                LeaderboardButton()
-            }
-            item {
-                RecentQuizzes()
-            }
+            item { SummaryCards() }
+            item { ActionButtons() }
+            item { LeaderboardButton() }
+            item { RecentQuizzes() }
         }
     }
 }
 
 @Composable
-fun HeaderSection(userName: String, totalScore: Int, navController: NavController) {
+fun HeaderSection(
+    userName: String,
+    totalScore: Int,
+    imageResId: Int,
+    navController: NavController
+) {
     var expanded by remember { mutableStateOf(false) }
 
     Row(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(end = 12.dp)
+            modifier = Modifier.weight(1f).padding(end = 12.dp)
         ) {
             Text(
                 text = "Selamat datang, $userName!",
@@ -116,21 +116,18 @@ fun HeaderSection(userName: String, totalScore: Int, navController: NavControlle
                     .clickable(
                         indication = rememberRipple(bounded = true),
                         interactionSource = remember { MutableInteractionSource() }
-                    ) {
-                        expanded = true
-                    }
+                    ) { expanded = true }
                     .border(1.dp, Color.Gray, CircleShape)
                     .shadow(2.dp, CircleShape)
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.profile),
+                    painter = painterResource(id = imageResId),
                     contentDescription = "Profile Picture",
                     contentScale = ContentScale.Inside,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(CircleShape)
+                    modifier = Modifier.fillMaxSize().clip(CircleShape)
                 )
             }
+
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
@@ -184,9 +181,7 @@ fun SummaryCard(title: String, value: String, backgroundColor: Color) {
         colors = CardDefaults.cardColors(containerColor = backgroundColor)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(12.dp),
+            modifier = Modifier.fillMaxSize().padding(12.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.Start
         ) {
@@ -247,11 +242,8 @@ fun ActionButtons() {
 @Composable
 fun LeaderboardButton() {
     Button(
-        onClick = {
-        },
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(48.dp),
+        onClick = {},
+        modifier = Modifier.fillMaxWidth().height(48.dp),
         shape = RoundedCornerShape(12.dp)
     ) {
         Text("Lihat Leaderboard", fontSize = 16.sp)
@@ -282,9 +274,7 @@ fun RecentQuizzes() {
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp),
+                    modifier = Modifier.fillMaxWidth().padding(12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
@@ -302,10 +292,10 @@ fun RecentQuizzes() {
                     )
                 }
             }
-
         }
     }
 }
+
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable

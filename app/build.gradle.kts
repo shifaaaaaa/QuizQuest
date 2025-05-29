@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.shifa.quizquest"
-        minSdk = 24
+        minSdk = 30
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -40,6 +40,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation("com.github.skydoves:colorpicker-compose:1.1.2")
     implementation("androidx.compose.material3:material3:1.1.0")
     implementation(libs.androidx.core.ktx)

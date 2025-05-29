@@ -1,5 +1,6 @@
 package com.shifa.quizquest
 
+import SessionManager
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -16,10 +17,13 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.platform.LocalContext
 import com.shifa.quizquest.ui.theme.poppins
 import com.shifa.quizquest.Screen
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavController
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsScreen(navController: NavController) {
@@ -27,6 +31,9 @@ fun SettingsScreen(navController: NavController) {
     var showNickname by remember { mutableStateOf(true) }
     var brightness by remember { mutableFloatStateOf(0.3f) }
     var fontSize by remember { mutableFloatStateOf(0.5f) }
+    val context = LocalContext.current
+    val SessionManager = remember { SessionManager(context) }
+    val coroutineScope = rememberCoroutineScope()
 
     LazyColumn(
         modifier = Modifier
@@ -123,8 +130,17 @@ fun SettingsScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            //Tombol Logout
             Button(
-                onClick = { navController.navigate(Screen.Login.route) },
+                onClick = {
+                    coroutineScope.launch {
+                        SessionManager.clearToken() // hapus token login
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(Screen.Dashboard.route) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    }
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFD74F4F),
                     contentColor = Color.White
@@ -176,7 +192,7 @@ fun SectionHeader(title: String, backgroundColor: Color) {
     }
 }
 
-// Icon + label only
+// Icon + label
 @Composable
 fun SettingItem(iconResId: Int, label: String) {
     Row(

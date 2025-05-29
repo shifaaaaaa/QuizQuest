@@ -24,12 +24,29 @@ import androidx.navigation.compose.rememberNavController
 import com.shifa.quizquest.ui.theme.poppins
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.platform.LocalContext
+import com.shifa.quizquest.datastore.ProfileDataStore
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+
 
 @Composable
 fun ProfileScreen(navController: NavController) {
     var nickname by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var selectedImage by remember { mutableStateOf(R.drawable.profile1) }
+    val context = LocalContext.current
+    val profileStore = remember { ProfileDataStore(context) }
+    val coroutineScope = rememberCoroutineScope()
+
+    // Load saved data
+    LaunchedEffect(Unit) {
+        val profile = withContext(Dispatchers.IO) { profileStore.getProfile() }
+        nickname = profile.nickname
+        description = profile.description
+        selectedImage = profile.imageRes
+    }
 
     val profileImages = listOf(
         R.drawable.profile1,
@@ -65,7 +82,7 @@ fun ProfileScreen(navController: NavController) {
                 ProfileImage(selectedImage)
             }
             item {
-                NameSection()
+                NameSection(nickname = nickname)
             }
             item {
                 FormCard(
@@ -76,9 +93,10 @@ fun ProfileScreen(navController: NavController) {
                     description = description,
                     onDescriptionChange = { if (it.length <= 40) description = it },
                     onSave = {
-                        Log.d("PROFILE_SAVE", "Nickname: $nickname")
-                        Log.d("PROFILE_SAVE", "Deskripsi: $description")
-                        navController.navigate("dashboard")
+                        coroutineScope.launch {
+                            profileStore.saveProfile(nickname, description, selectedImage)
+                            navController.navigate(Screen.Dashboard.route)
+                        }
                     }
                 )
             }
@@ -87,6 +105,10 @@ fun ProfileScreen(navController: NavController) {
             }
         }
     }
+}
+
+private fun ProfileDataStore.getProfile() {
+    TODO("Not yet implemented")
 }
 
 @Composable
@@ -112,14 +134,14 @@ fun ProfileImage(imageRes: Int) {
 }
 
 @Composable
-fun NameSection() {
+fun NameSection(nickname: String) {
     Box(
         modifier = Modifier
             .background(Color(0xFFB6D3F1), RoundedCornerShape(12.dp))
             .padding(horizontal = 24.dp, vertical = 8.dp)
     ) {
         Text(
-            text = "Nama Karakter",
+            text = nickname.ifEmpty { "Nama Karakter" }, //Default
             fontFamily = poppins,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold
