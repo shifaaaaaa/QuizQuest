@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "575472019358",
+    "project_id": "quizquest-9b6c6",
+    "storage_bucket": "quizquest-9b6c6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:575472019358:android:8d9d7415c473626981988f",
+        "android_client_info": {
+          "package_name": "com.shifa.quizquest"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjEnbUx9FRFmqPIf-jugFH6pG5ajzoY7s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
