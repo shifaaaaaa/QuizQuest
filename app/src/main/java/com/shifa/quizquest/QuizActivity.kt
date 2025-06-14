@@ -165,6 +165,27 @@ fun QuizScreen(
                 }
             )
         }
+
+        if (showSubmitConfirm.value) {
+            AlertDialog(
+                onDismissRequest = { showSubmitConfirm.value = false },
+                title = { Text("Konfirmasi") },
+                text = { Text("Submit?") },
+                confirmButton = {
+                    Button(onClick = {
+                        showSubmitConfirm.value = false
+                        onSubmit()
+                    }) {
+                        Text("Ya")
+                    }
+                },
+                dismissButton = {
+                    OutlinedButton(onClick = { showSubmitConfirm.value = false }) {
+                        Text("Batal")
+                    }
+                }
+            )
+        }
     }
 }
 
