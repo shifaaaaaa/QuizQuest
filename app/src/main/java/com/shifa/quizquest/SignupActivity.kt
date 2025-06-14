@@ -70,7 +70,7 @@ fun SignUpScreen(navController: NavController) {
                     .padding(24.dp)
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 Text(
                     text = "Create Your QuizQuest Account",

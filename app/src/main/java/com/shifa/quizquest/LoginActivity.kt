@@ -183,6 +183,7 @@ fun LoginScreen(
                         color = Color(0xFF3FA1B7),
                         modifier = Modifier.clickable {
                             Toast.makeText(context, "Go to Sign Up!", Toast.LENGTH_SHORT).show()
+                            navController.navigate(Screen.Signup.route)
                         }
                     )
                 }

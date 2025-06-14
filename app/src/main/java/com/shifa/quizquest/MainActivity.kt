@@ -52,6 +52,9 @@ class MainActivity : ComponentActivity() {
                 composable(Screen.Settings.route) {
                     SettingsScreen(navController = navController)
                 }
+                composable(Screen.Signup.route) {
+                    SignUpScreen(navController = navController)
+                }
             }
         }
     }
@@ -97,9 +100,9 @@ fun QuizQuestApp(navController: NavController) {
                         .fillMaxWidth()
                         .shadow(
                             elevation = 8.dp,
-                            shape = RoundedCornerShape(30.dp)
+                            shape = RoundedCornerShape(24.dp)
                         ),
-                    shape = RoundedCornerShape(30.dp),
+                    shape = RoundedCornerShape(40.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = Color.Transparent
                     )
