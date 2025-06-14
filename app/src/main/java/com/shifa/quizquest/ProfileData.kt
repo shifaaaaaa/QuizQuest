@@ -5,3 +5,4 @@ data class ProfileData(
     val description: String,
     val imageRes: Int
 )
+

@@ -55,6 +55,9 @@ class MainActivity : ComponentActivity() {
                 composable(Screen.Signup.route) {
                     SignUpScreen(navController = navController)
                 }
+                composable(Screen.Quiz.route) {
+                    QuizScreen(navController = navController)
+                }
             }
         }
     }

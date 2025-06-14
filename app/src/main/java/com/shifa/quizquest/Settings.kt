@@ -16,13 +16,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.platform.LocalContext
 import com.shifa.quizquest.ui.theme.poppins
-import com.shifa.quizquest.Screen
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavController
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -134,7 +131,7 @@ fun SettingsScreen(navController: NavController) {
             Button(
                 onClick = {
                     coroutineScope.launch {
-                        SessionManager.clearToken() // hapus token login
+                        SessionManager.clearToken() // menghapus token login
                         navController.navigate(Screen.Login.route) {
                             popUpTo(Screen.Dashboard.route) { inclusive = true }
                             launchSingleTop = true

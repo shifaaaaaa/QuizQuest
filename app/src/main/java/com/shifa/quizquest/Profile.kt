@@ -1,6 +1,5 @@
 package com.shifa.quizquest
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,7 +22,6 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.shifa.quizquest.ui.theme.poppins
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.platform.LocalContext
 import com.shifa.quizquest.datastore.ProfileDataStore
 import kotlinx.coroutines.launch
