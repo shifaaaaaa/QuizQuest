@@ -106,7 +106,8 @@ fun QuizQuestApp(navController: NavController) {
                 // Tombol Login
                 Button(
                     onClick = {
-                        Toast.makeText(context, "Navigasi ke Login Page!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Navigasi ke Login Page!",
+                            Toast.LENGTH_SHORT).show()
                         navController.navigate(Screen.Login.route)
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3FA1B7)),

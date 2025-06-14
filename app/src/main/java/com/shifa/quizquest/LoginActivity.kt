@@ -81,7 +81,8 @@ fun LoginScreen(
 
                 // Email
                 Column(horizontalAlignment = Alignment.Start, modifier = Modifier.fillMaxWidth()) {
-                    Text(text = "Email", fontSize = 14.sp, fontFamily = poppins, fontWeight = FontWeight.Medium, color = Color.Gray)
+                    Text(text = "Email", fontSize = 14.sp, fontFamily = poppins,
+                        fontWeight = FontWeight.Medium, color = Color.Gray)
                     Spacer(modifier = Modifier.height(4.dp))
                     OutlinedTextField(
                         value = email,
@@ -99,7 +100,8 @@ fun LoginScreen(
 
                 // Password
                 Column(horizontalAlignment = Alignment.Start, modifier = Modifier.fillMaxWidth()) {
-                    Text(text = "Password", fontSize = 14.sp, fontFamily = poppins, fontWeight = FontWeight.Medium, color = Color.Gray)
+                    Text(text = "Password", fontSize = 14.sp, fontFamily = poppins,
+                        fontWeight = FontWeight.Medium, color = Color.Gray)
                     Spacer(modifier = Modifier.height(4.dp))
                     OutlinedTextField(
                         value = password,
@@ -134,7 +136,8 @@ fun LoginScreen(
                     onClick = {
                         loginViewModel.performLogin(
                             onSuccess = {
-                                Toast.makeText(context, "Login Berhasil!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Login Berhasil!",
+                                    Toast.LENGTH_SHORT).show()
                                 navController.navigate(Screen.Dashboard.route) {
                                     popUpTo(Screen.Welcome.route) { inclusive = true }
                                 }
