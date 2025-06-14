@@ -296,7 +296,6 @@ fun RecentQuizzes() {
     }
 }
 
-
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun DashboardPreview() {
