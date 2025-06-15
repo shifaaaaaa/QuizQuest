@@ -22,12 +22,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 
 class QuizActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            QuizScreen()
+            val navController = rememberNavController()
+            QuizScreen(navController = navController)
         }
     }
 }
@@ -36,14 +38,14 @@ class QuizActivity : ComponentActivity() {
 fun QuizScreen(
     questionNumber: Int = 1,
     totalQuestions: Int = 24,
-    question: String = "Hewan-hewan apa yang …",
+    question: String = "Hewan-hewan apa yang ….............................................................................................................",
     answers: List<String> = listOf("Answer 1", "Answer 2", "Answer 3", "Answer 4"),
     onBack: () -> Unit = {},
     onNext: () -> Unit = {},
     onSubmit: () -> Unit = {},
     navController: NavHostController? = null
 ) {
-    val bgColor = Color(0xFF7ED6D1)
+    val bgColor = Color(0xFF6DCBC5)
     val selectedAnswer = remember { mutableStateOf(-1) }
     val showDialog = remember { mutableStateOf(false) }
     val showSubmitConfirm = remember { mutableStateOf(false) }
@@ -120,7 +122,7 @@ fun QuizScreen(
                 Button(
                     onClick = onBack,
                     shape = RoundedCornerShape(24.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFAEDC81)),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF9DCD93)),
                     modifier = Modifier.weight(1f).padding(end = 8.dp)
                 ) {
                     Text("Back")
@@ -129,7 +131,7 @@ fun QuizScreen(
                 Button(
                     onClick = onNext,
                     shape = RoundedCornerShape(24.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFAEDC81)),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF9DCD93)),
                     modifier = Modifier.weight(1f).padding(start = 8.dp)
                 ) {
                     Text("Next")
@@ -217,7 +219,7 @@ fun NavigationDialog(
                     Button(
                         onClick = { onSelect(idx + 1) },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (isCurrent) Color(0xFF4AA3C3) else Color.LightGray
+                            containerColor = if (isCurrent) Color(0xFF3FA0B6) else Color.LightGray
                         ),
                         modifier = Modifier.padding(4.dp)
                     ) {
@@ -231,7 +233,7 @@ fun NavigationDialog(
 
 @Composable
 fun QuizHeader(modifier: Modifier) {
-    val backgroundColor = Color(0xFFD26969)
+    val backgroundColor = Color(0xFFCB6D6E)
     val borderColor = Color.Black
 
     Box(
@@ -315,8 +317,8 @@ fun QuizCard(
 
 
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun QuizScreenPreview() {
-    QuizScreen()
+fun QuizPreview() {
+    QuizScreen(navController = rememberNavController())
 }
