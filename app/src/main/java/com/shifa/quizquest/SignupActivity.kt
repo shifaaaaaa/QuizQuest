@@ -26,6 +26,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shifa.quizquest.ui.theme.poppins
 
 class SignupActivity : ComponentActivity() {
@@ -39,13 +40,17 @@ class SignupActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignUpScreen(navController: NavController) {
+fun SignUpScreen(
+    navController: NavController,
+    signupViewModel: SignupViewModel = viewModel()
+) {
     val context = LocalContext.current
-
-    var username by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
+    val username = signupViewModel.username
+    val email = signupViewModel.email
+    val password = signupViewModel.password
+    val confirmPassword = signupViewModel.confirmPassword
+    val errorMessage = signupViewModel.errorMessage
+    val isLoading = signupViewModel.isLoading
 
     val backgroundGradient = Brush.horizontalGradient(
         colors = listOf(Color(0xFF85E4DC), Color(0xFF3FA1B7))
@@ -83,35 +88,55 @@ fun SignUpScreen(navController: NavController) {
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                SignUpTextField("Username", username) { username = it }
-                SignUpTextField("Email", email) { email = it }
-                SignUpTextField("Password", password, true) { password = it }
-                SignUpTextField("Confirm Password", confirmPassword, true) { confirmPassword = it }
+                SignUpTextField("Username", username) { signupViewModel.onUsernameChange(it) }
+                SignUpTextField("Email", email) { signupViewModel.onEmailChange(it) }
+                SignUpTextField("Password", password, true) { signupViewModel.onPasswordChange(it) }
+                SignUpTextField("Confirm Password", confirmPassword, true) { signupViewModel.onConfirmPasswordChange(it) }
+
+                // Error message
+                errorMessage?.let { message ->
+                    Text(
+                        text = message,
+                        color = MaterialTheme.colorScheme.error,
+                        fontFamily = poppins,
+                        fontSize = 12.sp,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
 
                 Button(
                     onClick = {
-                        if (username.isBlank() || email.isBlank() || password.isBlank() || confirmPassword.isBlank()) {
-                            Toast.makeText(context, "Please fill in all fields", Toast.LENGTH_SHORT).show()
-                        } else if (password != confirmPassword) {
-                            Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
-                        } else {
-                            Toast.makeText(context, "Sign Up Success!", Toast.LENGTH_SHORT).show()
-                            navController.navigate(Screen.Login.route)
-                        }
+                        signupViewModel.performSignup(
+                            onSuccess = {
+                                Toast.makeText(context, "Signup Berhasil!", Toast.LENGTH_SHORT).show()
+                                navController.navigate(Screen.Login.route)
+                            },
+                            onFailure = { errorMsg ->
+                                Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show()
+                            }
+                        )
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3FA1B7))
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3FA1B7)),
+                    enabled = !isLoading
                 ) {
-                    Text(
-                        text = "Sign Up",
-                        fontFamily = poppins,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    } else {
+                        Text(
+                            text = "Sign Up",
+                            fontFamily = poppins,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
                 }
 
                 Row(
@@ -131,7 +156,6 @@ fun SignUpScreen(navController: NavController) {
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF3FA1B7),
                         modifier = Modifier.clickable {
-                            Toast.makeText(context, "Go to Login Page!", Toast.LENGTH_SHORT).show()
                             navController.navigate(Screen.Login.route)
                         }
                     )

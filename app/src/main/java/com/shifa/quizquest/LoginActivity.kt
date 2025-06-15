@@ -132,12 +132,12 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Login button
+                // Update bagian Button di LoginScreen untuk menambahkan loading indicator
                 Button(
                     onClick = {
                         loginViewModel.performLogin(
                             onSuccess = {
-                                Toast.makeText(context, "Login Berhasil!",
-                                    Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Login Berhasil!", Toast.LENGTH_SHORT).show()
                                 navController.navigate(Screen.Dashboard.route) {
                                     popUpTo(Screen.Welcome.route) { inclusive = true }
                                 }
@@ -151,15 +151,23 @@ fun LoginScreen(
                         .fillMaxWidth()
                         .height(50.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3FA1B7))
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3FA1B7)),
+                    enabled = !loginViewModel.isLoading
                 ) {
-                    Text(
-                        text = "Login",
-                        fontFamily = poppins,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
+                    if (loginViewModel.isLoading) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    } else {
+                        Text(
+                            text = "Login",
+                            fontFamily = poppins,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
