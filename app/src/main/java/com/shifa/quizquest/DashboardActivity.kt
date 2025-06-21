@@ -29,14 +29,40 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shifa.quizquest.ui.theme.poppins
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import com.shifa.quizquest.Screen
+import com.shifa.quizquest.QuizThemeListScreen
+import com.shifa.quizquest.QuizScreen
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class DashboardActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             val navController = rememberNavController()
-            DashboardScreen(navController = navController)
+
+            NavHost(
+                navController = navController,
+                startDestination = Screen.Dashboard.route
+            ) {
+                composable(Screen.Dashboard.route) {
+                    DashboardScreen(navController = navController)
+                }
+
+                composable(Screen.QuizThemeList.route) {
+                    QuizThemeListScreen(navController = navController)
+                }
+
+                composable(Screen.Quiz.route) { backStackEntry ->
+                    val themeId = backStackEntry.arguments?.getString("themeId") ?: ""
+                    QuizScreen(navController = navController, themeId = themeId)
+                }
+
+                // Add other screens as needed
+            }
         }
     }
 }
@@ -70,7 +96,7 @@ fun DashboardScreen(navController: NavController, viewModel: DashboardViewModel 
                 )
             }
             item { SummaryCards() }
-            item { ActionButtons() }
+            item { ActionButtons(navController = navController) }
             item { LeaderboardButton() }
             item { RecentQuizzes() }
         }
@@ -203,10 +229,12 @@ fun SummaryCard(title: String, value: String, backgroundColor: Color) {
 }
 
 @Composable
-fun ActionButtons() {
+fun ActionButtons(navController: NavController) {
     Column {
         Button(
-            onClick = {},
+            onClick = {
+                navController.navigate(Screen.QuizThemeList.route)
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),

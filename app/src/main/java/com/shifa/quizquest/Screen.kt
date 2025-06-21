@@ -8,4 +8,8 @@ sealed class Screen(val route: String) {
     object Settings : Screen("setting_screen")
     object Signup : Screen("Signup_screen")
     object Quiz : Screen("quiz_screen")
+    object QuizThemeList : Screen("quiz_theme_list")
+    object Quizzes : Screen("quiz/{themeId}") {
+        fun createRoute(themeId: String) = "quiz/$themeId"
+    }
 }

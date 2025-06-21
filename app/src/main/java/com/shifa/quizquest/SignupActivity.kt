@@ -51,7 +51,6 @@ fun SignUpScreen(
     val confirmPassword = signupViewModel.confirmPassword
     val errorMessage = signupViewModel.errorMessage
     val isLoading = signupViewModel.isLoading
-
     val backgroundGradient = Brush.horizontalGradient(
         colors = listOf(Color(0xFF85E4DC), Color(0xFF3FA1B7))
     )
