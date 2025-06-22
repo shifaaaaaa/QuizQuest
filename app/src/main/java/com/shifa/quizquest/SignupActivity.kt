@@ -188,9 +188,9 @@ fun SignUpTextField(
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = Color(0xFF3FA1B7),
-                unfocusedBorderColor = Color.LightGray
+            colors = TextFieldDefaults.colors(
+                focusedIndicatorColor = Color(0xFF3FA1B7),
+                unfocusedIndicatorColor = Color.LightGray
             ),
             shape = RoundedCornerShape(8.dp)
         )

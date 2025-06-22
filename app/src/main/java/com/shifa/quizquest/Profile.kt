@@ -173,7 +173,8 @@ fun FormCard(
                 onValueChange = onNicknameChange,
                 placeholder = { Text("Maks 16 karakter") },
                 shape = RoundedCornerShape(20.dp),
-                colors = TextFieldDefaults.textFieldColors(containerColor = Color(0xFFDFF5F3)),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color(0xFFDFF5F3),unfocusedContainerColor = Color(0xFFDFF5F3)),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -185,7 +186,8 @@ fun FormCard(
                 onValueChange = onDescriptionChange,
                 placeholder = { Text("Deskripsi diri 40 karakter") },
                 shape = RoundedCornerShape(20.dp),
-                colors = TextFieldDefaults.textFieldColors(containerColor = Color(0xFFDFF5F3)),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color(0xFFDFF5F3),unfocusedContainerColor = Color(0xFFDFF5F3)),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(120.dp)

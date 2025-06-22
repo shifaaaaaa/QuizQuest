@@ -9,6 +9,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -90,9 +93,9 @@ fun LoginScreen(
                         placeholder = { Text("Enter your email", fontSize = 14.sp) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
-                            focusedBorderColor = Color(0xFF3FA1B7),
-                            unfocusedBorderColor = Color.LightGray
+                        colors = TextFieldDefaults.colors(
+                            focusedIndicatorColor = Color(0xFF3FA1B7),
+                            unfocusedIndicatorColor = Color.LightGray
                         ),
                         shape = RoundedCornerShape(8.dp)
                     )
@@ -110,9 +113,9 @@ fun LoginScreen(
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         visualTransformation = PasswordVisualTransformation(),
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
-                            focusedBorderColor = Color(0xFF3FA1B7),
-                            unfocusedBorderColor = Color.LightGray
+                        colors = TextFieldDefaults.colors(
+                            focusedIndicatorColor = Color(0xFF3FA1B7),
+                            unfocusedIndicatorColor = Color.LightGray
                         ),
                         shape = RoundedCornerShape(8.dp)
                     )

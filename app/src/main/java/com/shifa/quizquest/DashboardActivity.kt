@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
@@ -29,40 +28,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shifa.quizquest.ui.theme.poppins
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import com.shifa.quizquest.Screen
-import com.shifa.quizquest.QuizThemeListScreen
-import com.shifa.quizquest.QuizScreen
-import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint
 class DashboardActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             val navController = rememberNavController()
-
-            NavHost(
-                navController = navController,
-                startDestination = Screen.Dashboard.route
-            ) {
-                composable(Screen.Dashboard.route) {
-                    DashboardScreen(navController = navController)
-                }
-
-                composable(Screen.QuizThemeList.route) {
-                    QuizThemeListScreen(navController = navController)
-                }
-
-                composable(Screen.Quiz.route) { backStackEntry ->
-                    val themeId = backStackEntry.arguments?.getString("themeId") ?: ""
-                    QuizScreen(navController = navController, themeId = themeId)
-                }
-
-                // Add other screens as needed
-            }
+            DashboardScreen(navController = navController)
         }
     }
 }
@@ -96,7 +69,7 @@ fun DashboardScreen(navController: NavController, viewModel: DashboardViewModel 
                 )
             }
             item { SummaryCards() }
-            item { ActionButtons(navController = navController) }
+            item { ActionButtons() }
             item { LeaderboardButton() }
             item { RecentQuizzes() }
         }
@@ -137,14 +110,15 @@ fun HeaderSection(
 
         Box {
             Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .clickable(
-                        indication = rememberRipple(bounded = true),
-                        interactionSource = remember { MutableInteractionSource() }
-                    ) { expanded = true }
-                    .border(1.dp, Color.Gray, CircleShape)
-                    .shadow(2.dp, CircleShape)
+                modifier = Modifier.run {
+                    size(48.dp)
+                                .clickable(
+                                    indication = androidx.compose.material3.ripple(bounded = true),
+                                    interactionSource = remember { MutableInteractionSource() }
+                                ) { expanded = true }
+                                .border(1.dp, Color.Gray, CircleShape)
+                                .shadow(2.dp, CircleShape)
+                }
             ) {
                 Image(
                     painter = painterResource(id = imageResId),
@@ -229,12 +203,10 @@ fun SummaryCard(title: String, value: String, backgroundColor: Color) {
 }
 
 @Composable
-fun ActionButtons(navController: NavController) {
+fun ActionButtons() {
     Column {
         Button(
-            onClick = {
-                navController.navigate(Screen.QuizThemeList.route)
-            },
+            onClick = {},
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),

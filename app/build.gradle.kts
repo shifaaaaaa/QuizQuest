@@ -45,7 +45,7 @@ android {
 dependencies {
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation("com.github.skydoves:colorpicker-compose:1.1.2")
-    implementation("androidx.compose.material3:material3:1.3.2")
+    implementation(libs.material3)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -55,6 +55,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.perf.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -63,6 +64,10 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation("androidx.navigation:navigation-compose:2.9.0")
+    implementation ("androidx.compose.foundation:foundation:1.6.1")
+    implementation ("androidx.compose.material:material-icons-extended:1.7.8")
+
+
 
     //firebase
     implementation(platform("com.google.firebase:firebase-bom:33.15.0"))
