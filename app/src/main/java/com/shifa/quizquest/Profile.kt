@@ -37,15 +37,6 @@ fun ProfileScreen(navController: NavController) {
     val context = LocalContext.current
     val profileStore = remember { ProfileDataStore(context) }
     val coroutineScope = rememberCoroutineScope()
-
-    // Load saved data
-    LaunchedEffect(Unit) {
-        val profile = withContext(Dispatchers.IO) { profileStore.getProfile() }
-        nickname = profile.nickname
-        description = profile.description
-        selectedImage = profile.imageRes
-    }
-
     val profileImages = listOf(
         R.drawable.profile1,
         R.drawable.profile2,
@@ -53,10 +44,38 @@ fun ProfileScreen(navController: NavController) {
         R.drawable.profile4,
         R.drawable.profile5
     )
-
     val backgroundGradient = Brush.horizontalGradient(
         colors = listOf(Color(0xFF85E4DC), Color(0xFF3FA1B7))
     )
+
+    // Load saved data
+    LaunchedEffect(Unit) {
+        val profile = withContext(Dispatchers.IO) { profileStore.getProfile() }
+
+        // Validasi ID agar hanya memuat resource yang benar
+        val validImages = listOf(
+            R.drawable.profile1,
+            R.drawable.profile2,
+            R.drawable.profile3,
+            R.drawable.profile4,
+            R.drawable.profile5
+        )
+
+        selectedImage = if (profile.imageRes in validImages) {
+            profile.imageRes
+        } else {
+            R.drawable.profile1 // fallback aman
+        }
+
+        nickname = profile.nickname
+        description = profile.description
+        selectedImage = if (profile.imageRes in validImages) {
+            profile.imageRes
+        } else {
+            R.drawable.profile1 // fallback default
+        }
+    }
+
 
     Box(
         modifier = Modifier
@@ -92,7 +111,12 @@ fun ProfileScreen(navController: NavController) {
                     onDescriptionChange = { if (it.length <= 40) description = it },
                     onSave = {
                         coroutineScope.launch {
-                            profileStore.saveProfile(nickname, description, selectedImage)
+                            val safeImage = if (selectedImage in profileImages) {
+                                selectedImage
+                            } else {
+                                R.drawable.profile1
+                            }
+                            profileStore.saveProfile(nickname, description, safeImage)
                             navController.navigate(Screen.Dashboard.route)
                         }
                     }
