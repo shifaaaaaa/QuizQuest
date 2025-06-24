@@ -25,18 +25,21 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.shifa.quizquest.ui.theme.poppins
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.ui.platform.LocalContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             val navController = rememberNavController()
             NavHost(
                 navController = navController,
-                startDestination = Screen.Welcome.route
-            ) {
+                startDestination = Screen.Splash.route
+            )
+                {
                 composable(Screen.Welcome.route) {
                     QuizQuestApp(navController = navController)
                 }
@@ -61,8 +64,10 @@ class MainActivity : ComponentActivity() {
                 composable(Screen.QuizList.route) {
                     QuizListScreen(navController = navController)
                 }
-
-                composable("quiz_play_screen/{quizId}") { backStackEntry ->
+                    composable(Screen.Splash.route) {
+                        SplashScreen(navController = navController)
+                    }
+                    composable("quiz_play_screen/{quizId}") { backStackEntry ->
                     val quizId = backStackEntry.arguments?.getString("quizId")?.toIntOrNull() ?: 1
                     QuizPlayScreen(navController = navController, quizId = quizId)
                 }
