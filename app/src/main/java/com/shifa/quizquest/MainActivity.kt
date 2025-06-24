@@ -58,6 +58,14 @@ class MainActivity : ComponentActivity() {
                 composable(Screen.Quiz.route) {
                     QuizScreen(navController = navController)
                 }
+                composable(Screen.QuizList.route) {
+                    QuizListScreen(navController = navController)
+                }
+
+                composable("quiz_play_screen/{quizId}") { backStackEntry ->
+                    val quizId = backStackEntry.arguments?.getString("quizId")?.toIntOrNull() ?: 1
+                    QuizPlayScreen(navController = navController, quizId = quizId)
+                }
             }
         }
     }

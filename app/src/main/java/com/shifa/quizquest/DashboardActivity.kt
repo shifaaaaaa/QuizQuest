@@ -69,7 +69,7 @@ fun DashboardScreen(navController: NavController, viewModel: DashboardViewModel 
                 )
             }
             item { SummaryCards() }
-            item { ActionButtons() }
+            item { ActionButtons(navController = navController) }
             item { LeaderboardButton() }
             item { RecentQuizzes() }
         }
@@ -203,10 +203,12 @@ fun SummaryCard(title: String, value: String, backgroundColor: Color) {
 }
 
 @Composable
-fun ActionButtons() {
+fun ActionButtons(navController: NavController) {
     Column {
         Button(
-            onClick = {},
+            onClick = {
+                navController.navigate(Screen.QuizList.route)
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
@@ -217,23 +219,6 @@ fun ActionButtons() {
                 fontFamily = poppins,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
-            )
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        OutlinedButton(
-            onClick = {},
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            shape = RoundedCornerShape(12.dp),
-            border = BorderStroke(1.dp, Color.White)
-        ) {
-            Text(
-                text = "Lihat Riwayat",
-                fontFamily = poppins,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
             )
         }
     }

@@ -86,7 +86,13 @@ fun QuizListScreen(navController: NavController) {
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = {
+                        navController.navigate("dashboard_screen") {
+                            launchSingleTop = true
+                            popUpTo("dashboard_screen") { inclusive = false }
+                        }
+                    })
+                    {
                         Icon(
                             Icons.Default.ArrowBack,
                             contentDescription = "Back",
@@ -131,7 +137,7 @@ fun QuizListScreen(navController: NavController) {
                         quiz = quiz,
                         onStartQuiz = {
                             // Navigate ke quiz detail
-                            navController.navigate("quiz_detail/${quiz.id}")
+                            navController.navigate("quiz_play_Screen/${quiz.id}")
                         }
                     )
                 }
