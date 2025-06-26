@@ -27,6 +27,9 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.shifa.quizquest.ui.theme.poppins
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.shifa.quizquest.datastore.ProfileDataStore
 
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -139,7 +142,12 @@ fun LoginScreen(
                 Button(
                     onClick = {
                         loginViewModel.performLogin(
+                            context = context,
                             onSuccess = {
+                                val uid = Firebase.auth.currentUser?.uid ?: return@performLogin
+
+                                val profileStore = ProfileDataStore(context, uid)
+
                                 Toast.makeText(context, "Login Berhasil!", Toast.LENGTH_SHORT).show()
                                 navController.navigate(Screen.Dashboard.route) {
                                     popUpTo(Screen.Welcome.route) { inclusive = true }

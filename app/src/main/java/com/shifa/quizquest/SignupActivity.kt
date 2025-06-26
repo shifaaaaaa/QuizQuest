@@ -106,6 +106,7 @@ fun SignUpScreen(
                 Button(
                     onClick = {
                         signupViewModel.performSignup(
+                            context = context,
                             onSuccess = {
                                 Toast.makeText(context, "Signup Berhasil!", Toast.LENGTH_SHORT).show()
                                 navController.navigate(Screen.Login.route)

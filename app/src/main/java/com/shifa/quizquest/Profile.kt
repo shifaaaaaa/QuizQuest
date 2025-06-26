@@ -23,7 +23,9 @@ import androidx.navigation.compose.rememberNavController
 import com.shifa.quizquest.ui.theme.poppins
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.ui.platform.LocalContext
+import com.google.firebase.auth.FirebaseAuth
 import com.shifa.quizquest.datastore.ProfileDataStore
+import com.shifa.quizquest.repository.ProfileRepository
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -35,7 +37,9 @@ fun ProfileScreen(navController: NavController) {
     var description by remember { mutableStateOf("") }
     var selectedImage by remember { mutableStateOf(R.drawable.profile1) }
     val context = LocalContext.current
-    val profileStore = remember { ProfileDataStore(context) }
+    val uid = FirebaseAuth.getInstance().currentUser?.uid
+    val profileStore = remember(uid) { uid?.let { ProfileDataStore(context, it) } }
+    val repository = remember(uid) { uid?.let { ProfileRepository(context, it) } }
     val coroutineScope = rememberCoroutineScope()
     val profileImages = listOf(
         R.drawable.profile1,
@@ -49,30 +53,21 @@ fun ProfileScreen(navController: NavController) {
     )
 
     // Load saved data
-    LaunchedEffect(Unit) {
-        val profile = withContext(Dispatchers.IO) { profileStore.getProfile() }
+    LaunchedEffect(uid) {
+        // Sinkronisasi Firestore DataStore
+        repository?.syncProfileToLocal()
 
-        // Validasi ID agar hanya memuat resource yang benar
-        val validImages = listOf(
-            R.drawable.profile1,
-            R.drawable.profile2,
-            R.drawable.profile3,
-            R.drawable.profile4,
-            R.drawable.profile5
-        )
+        // Setelah sinkronisasi, ambil dari DataStore
+        profileStore?.let { store ->
+            val profile = store.getProfile()
+            val validImages = listOf(
+                R.drawable.profile1, R.drawable.profile2,
+                R.drawable.profile3, R.drawable.profile4, R.drawable.profile5
+            )
 
-        selectedImage = if (profile.imageRes in validImages) {
-            profile.imageRes
-        } else {
-            R.drawable.profile1 // fallback aman
-        }
-
-        nickname = profile.nickname
-        description = profile.description
-        selectedImage = if (profile.imageRes in validImages) {
-            profile.imageRes
-        } else {
-            R.drawable.profile1 // fallback default
+            selectedImage = if (profile.imageRes in validImages) profile.imageRes else R.drawable.profile1
+            nickname = profile.nickname
+            description = profile.description
         }
     }
 
@@ -111,13 +106,19 @@ fun ProfileScreen(navController: NavController) {
                     onDescriptionChange = { if (it.length <= 40) description = it },
                     onSave = {
                         coroutineScope.launch {
-                            val safeImage = if (selectedImage in profileImages) {
-                                selectedImage
-                            } else {
-                                R.drawable.profile1
+                            profileStore?.let { store ->
+                                repository?.let { repo ->
+                                    val safeImage = if (selectedImage in profileImages) selectedImage else R.drawable.profile1
+
+                                    // 1. Simpan ke DataStore
+                                    store.saveProfile(nickname, description, safeImage)
+
+                                    // 2. Simpan ke Firestore (dalam bentuk index, bukan resId)
+                                    repo.syncProfileToCloud()
+
+                                    navController.navigate(Screen.Dashboard.route)
+                                }
                             }
-                            profileStore.saveProfile(nickname, description, safeImage)
-                            navController.navigate(Screen.Dashboard.route)
                         }
                     }
                 )
