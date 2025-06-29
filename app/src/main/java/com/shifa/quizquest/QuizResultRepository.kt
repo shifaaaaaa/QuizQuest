@@ -22,7 +22,7 @@ class QuizResultRepository @Inject constructor(
 
     suspend fun getAllQuizResults(userId: Long): Result<List<QuizResult>> {
         return try {
-            val response = apiService.getQuizResults(userId)
+            val response = apiService.getAllQuizResults(userId)
             if (response.isSuccessful && response.body()?.success == true) {
                 Result.success(response.body()?.data ?: emptyList())
             } else {
