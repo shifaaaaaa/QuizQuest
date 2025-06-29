@@ -17,158 +17,180 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shifa.quizquest.ui.theme.poppins
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavController
+import com.shifa.quizquest.viewmodel.SettingsViewModel
 import kotlinx.coroutines.launch
+
 
 @Composable
 fun SettingsScreen(navController: NavController) {
-    var darkMode by remember { mutableStateOf(false) }
-    var showNickname by remember { mutableStateOf(true) }
-    var brightness by remember { mutableFloatStateOf(0.3f) }
-    var fontSize by remember { mutableFloatStateOf(0.5f) }
     val context = LocalContext.current
-    val SessionManager = remember { SessionManager(context) }
+    val sessionManager = remember { SessionManager(context) }
     val coroutineScope = rememberCoroutineScope()
+    val viewModel: SettingsViewModel = viewModel()
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFDCDCDC))
-            .padding(16.dp)
-    ) {
-        item {
-            Spacer(modifier = Modifier.height(16.dp))
+    val snackbarHostState = remember { SnackbarHostState() }
 
-            Text(
-                text = "Settings",
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = poppins,
-                modifier = Modifier.padding(vertical = 12.dp)
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            SectionHeader("UI & Accessibility", Color(0xFF64A0CE))
+    // Menampilkan snackbar jika ada message
+    LaunchedEffect(viewModel.message) {
+        viewModel.message?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.message = null
         }
+    }
 
-        item {
-            SettingSlider(
-                iconResId = R.drawable.text,
-                label = "Fonts",
-                value = fontSize,
-                onValueChange = { fontSize = it }
-            )
-
-            SettingToggle(
-                iconResId = R.drawable.dark,
-                label = "Dark Mode",
-                isChecked = darkMode,
-                onCheckedChange = { darkMode = it }
-            )
-
-            SettingSlider(
-                iconResId = R.drawable.bright,
-                label = "Brightness",
-                value = brightness,
-                onValueChange = { brightness = it }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            SectionHeader("User & Account", Color(0xFFD77575))
-        }
-
-        item {
-            SettingItem(iconResId = R.drawable.secret, label = "Privacy :")
-
-            SettingToggle(
-                iconResId = R.drawable.name,
-                label = "Show Nickname",
-                isChecked = showNickname,
-                onCheckedChange = { showNickname = it }
-            )
-
-            SettingItem(iconResId = R.drawable.name, label = "Credentials :")
-        }
-
-        item {
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = { /* TODO: change email */ },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF40A9A0),
-                    contentColor = Color.White
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(45.dp)
-            ) {
-                Text("Change Email", fontWeight = FontWeight.Bold)
+    Scaffold(
+        containerColor = Color(0xFFDCDCDC),
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { innerPadding ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(16.dp)
+        ) {
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Settings",
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = poppins,
+                    modifier = Modifier.padding(vertical = 12.dp)
+                )
+                SectionHeader("Change Email", Color(0xFF64A0CE))
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            item {
+                OutlinedTextField(
+                    value = viewModel.oldPassword,
+                    onValueChange = { viewModel.oldPassword = it },
+                    label = { Text("Current Password") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    visualTransformation = PasswordVisualTransformation()
+                )
 
-            Button(
-                onClick = { /* TODO: change password */ },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFC98522),
-                    contentColor = Color.White
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(45.dp)
-            ) {
-                Text("Change Password", fontWeight = FontWeight.Bold)
+                OutlinedTextField(
+                    value = viewModel.newEmail,
+                    onValueChange = { viewModel.newEmail = it },
+                    label = { Text("New Email") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                )
+
+                Button(
+                    onClick = {
+                        viewModel.changeEmail(
+                            onSuccess = { viewModel.message = "Email berhasil diubah" },
+                            onFailure = { viewModel.message = it }
+                        )
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF40A9A0),
+                        contentColor = Color.White
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(45.dp)
+                ) {
+                    Text("Change Email", fontWeight = FontWeight.Bold)
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                SectionHeader("Change Password", Color(0xFFD77575))
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            item {
+                OutlinedTextField(
+                    value = viewModel.oldPassword,
+                    onValueChange = { viewModel.oldPassword = it },
+                    label = { Text("Current Password") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    visualTransformation = PasswordVisualTransformation()
+                )
 
-            //Tombol Logout
-            Button(
-                onClick = {
-                    coroutineScope.launch {
-                        SessionManager.clearToken() // menghapus token login
-                        navController.navigate(Screen.Login.route) {
-                            popUpTo(Screen.Dashboard.route) { inclusive = true }
-                            launchSingleTop = true
+                OutlinedTextField(
+                    value = viewModel.newPassword,
+                    onValueChange = { viewModel.newPassword = it },
+                    label = { Text("New Password") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    visualTransformation = PasswordVisualTransformation()
+                )
+
+                Button(
+                    onClick = {
+                        viewModel.changePassword(
+                            onSuccess = { viewModel.message = "Password berhasil diubah" },
+                            onFailure = { viewModel.message = it }
+                        )
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFC98522),
+                        contentColor = Color.White
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(45.dp)
+                ) {
+                    Text("Change Password", fontWeight = FontWeight.Bold)
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                Button(
+                    onClick = {
+                        coroutineScope.launch {
+                            sessionManager.clearToken()
+                            navController.navigate(Screen.Login.route) {
+                                popUpTo(Screen.Dashboard.route) { inclusive = true }
+                                launchSingleTop = true
+                            }
                         }
-                    }
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFD74F4F),
-                    contentColor = Color.White
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(45.dp)
-            ) {
-                Text("Logout", fontWeight = FontWeight.Bold)
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFD74F4F),
+                        contentColor = Color.White
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(45.dp)
+                ) {
+                    Text("Logout", fontWeight = FontWeight.Bold)
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Button(
+                    onClick = { navController.navigate(Screen.Dashboard.route) },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF42AF6B),
+                        contentColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                ) {
+                    Text("Return to Dashboard", fontWeight = FontWeight.Bold)
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
             }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Button(
-                onClick = { navController.navigate(Screen.Dashboard.route) },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF42AF6B),
-                    contentColor = Color.White
-                ),
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-            ) {
-                Text("Return to Dashboard", fontWeight = FontWeight.Bold)
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }
+
 
 // Section header
 @Composable
