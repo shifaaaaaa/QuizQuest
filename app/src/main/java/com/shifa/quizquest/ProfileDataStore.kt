@@ -9,19 +9,13 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import com.google.firebase.auth.FirebaseAuth
 
-private val Context.dataStore by preferencesDataStore(name = "user_profile")
+private val Context.dataStore by preferencesDataStore(name = "user_profile_V2")
 
-class ProfileDataStore(
-    private val context: Context,
-    private val uid: String
-
-) {
+class ProfileDataStore(private val context: Context, private val uid: String) {
     companion object {
         private fun nicknameKey(uid: String) = stringPreferencesKey("nickname_$uid")
         private fun descriptionKey(uid: String) = stringPreferencesKey("description_$uid")
         private fun imageKey(uid: String) = intPreferencesKey("image_id_$uid")
-
-
     }
 
     val nickname: Flow<String> = context.dataStore.data
@@ -34,11 +28,11 @@ class ProfileDataStore(
         .map { it[imageKey(uid)] ?: R.drawable.profile1 }
 
     suspend fun saveProfile(nickname: String, description: String, imageId: Int) {
-        val index = imageResToIndex(imageId)
         context.dataStore.edit { preferences ->
             preferences[nicknameKey(uid)] = nickname
             preferences[descriptionKey(uid)] = description
-            preferences[imageKey(uid)] = index
+            preferences[imageKey(uid)] = imageId
+
         }
     }
 

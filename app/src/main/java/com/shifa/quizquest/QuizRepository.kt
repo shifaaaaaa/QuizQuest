@@ -13,7 +13,6 @@ data class Question(
 
 object QuizRepository {
 
-    // HANYA ADA SATU FUNGSI saveQuizResult
     suspend fun saveQuizResult(result: QuizResultData) {
         val db = Firebase.firestore
         try {
@@ -40,6 +39,26 @@ object QuizRepository {
             }
         } catch (e: Exception) {
             println("Error fetching recent results: ${e.message}")
+        }
+        return results
+    }
+
+    suspend fun getAllResultsForUser(userId: String): List<QuizResultData> {
+        val db = Firebase.firestore
+        val results = mutableListOf<QuizResultData>()
+        try {
+            val querySnapshot = db.collection("quizResults")
+                .whereEqualTo("userId", userId)
+                .orderBy("completedAt", Query.Direction.DESCENDING)
+                .get()
+                .await()
+            for (document in querySnapshot.documents) {
+                document.toObject(QuizResultData::class.java)?.let {
+                    results.add(it)
+                }
+            }
+        } catch (e: Exception) {
+            println("Error fetching all results for user: ${e.message}")
         }
         return results
     }

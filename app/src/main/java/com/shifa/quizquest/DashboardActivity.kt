@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
@@ -29,29 +30,16 @@ import com.shifa.quizquest.ui.theme.poppins
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavController
 
-class DashboardActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        setContent {
-            val navController = rememberNavController()
-            DashboardScreen(navController = navController)
-        }
-    }
-}
 
 @Composable
 fun DashboardScreen(navController: NavController, viewModel: DashboardViewModel = viewModel()) {
     val profile by viewModel.profileData.collectAsState()
     val recentResults by viewModel.recentQuizResults.collectAsState()
+    val stats by viewModel.dashboardStats.collectAsState()
+
     val backgroundGradient = Brush.verticalGradient(
         colors = listOf(Color(0xFF85E4DC), Color(0xFF3FA1B7))
     )
-
-    // Refresh data saat screen pertama kali dimuat
-    LaunchedEffect(Unit) {
-        viewModel.refreshQuizResults()
-    }
 
     Box(
         modifier = Modifier
@@ -68,23 +56,29 @@ fun DashboardScreen(navController: NavController, viewModel: DashboardViewModel 
             item {
                 HeaderSection(
                     userName = profile.nickname.ifBlank { "Pengguna" },
-                    totalScore = 1234,
+                    totalScore = stats.averageScore,
                     imageResId = profile.imageRes,
                     navController = navController
                 )
             }
-            item { SummaryCards() }
+            item {
+                SummaryCards(
+                    quizzesTaken = stats.quizzesTaken,
+                    averageScore = stats.averageScore,
+                    accuracy = stats.accuracy
+                )
+            }
             item { ActionButtons(navController = navController) }
             item { LeaderboardButton() }
             item {
-                RecentQuizzesSection(
-                    results = recentResults,
-                    onRefresh = { viewModel.refreshQuizResults() } // Tambah refresh button
-                )
+                // Panggilan ini sekarang tidak akan ambigu lagi
+                // setelah duplikatnya dihapus.
+                RecentQuizzesSection(results = recentResults)
             }
         }
     }
 }
+
 
 @Composable
 fun HeaderSection(
@@ -162,17 +156,14 @@ fun HeaderSection(
 }
 
 @Composable
-fun SummaryCards() {
+fun SummaryCards(quizzesTaken: Int, averageScore: Int, accuracy: Int) {
     val cardData = listOf(
-        Triple("Kuis Diikuti", "0", Color(0xFFB2EBF2)),
-        Triple("Skor Rata-rata", "0", Color(0xFFC5E1A5)),
-        Triple("Akurasi", "0%", Color(0xFFFFF59D))
+        Triple("Kuis Diikuti", quizzesTaken.toString(), Color(0xFFB2EBF2)),
+        Triple("Skor Rata-rata", "$averageScore%", Color(0xFFC5E1A5)),
+        Triple("Akurasi", "$accuracy%", Color(0xFFFFF59D))
     )
-
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(110.dp),
+        modifier = Modifier.fillMaxWidth().height(110.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         cardData.forEach { (title, value, color) ->
@@ -242,54 +233,6 @@ fun LeaderboardButton() {
         shape = RoundedCornerShape(12.dp)
     ) {
         Text("Lihat Leaderboard", fontSize = 16.sp)
-    }
-}
-
-@Composable
-fun RecentQuizzesSection(
-    results: List<QuizResultData>,
-    onRefresh: () -> Unit = {} // Tambah parameter refresh
-) {
-    Column {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Kuis Terbaru",
-                fontFamily = poppins,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-            // Tambah tombol refresh untuk debugging
-            TextButton(onClick = onRefresh) {
-                Text(
-                    text = "Refresh",
-                    color = Color.White,
-                    fontSize = 12.sp
-                )
-            }
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-
-        if (results.isEmpty()) {
-            Text(
-                text = "Kamu belum mengerjakan kuis. Tap 'Refresh' untuk memuat ulang data.",
-                fontFamily = poppins,
-                color = Color.White.copy(alpha = 0.8f),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp)
-            )
-        } else {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                results.forEach { resultData ->
-                    RecentQuizCard(resultData = resultData)
-                }
-            }
-        }
     }
 }
 

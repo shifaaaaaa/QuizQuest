@@ -8,6 +8,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.shifa.quizquest.datastore.ProfileData
 import com.shifa.quizquest.datastore.ProfileDataStore
@@ -59,37 +60,20 @@ class LoginViewModel : ViewModel() {
             .addOnCompleteListener { task ->
                 isLoading = false
                 if (task.isSuccessful) {
-                    val uid = auth.currentUser?.uid
-                    if (uid != null) {
-                        viewModelScope.launch {
-                            try {
-                                // 1. Sinkronkan dari cloud ke lokal
-                                val repo = ProfileRepository(context, uid)
-                                repo.syncProfileToLocal()
-
-                                // 2. Ambil dari lokal ke ViewModel
-                                val store = ProfileDataStore(context, uid)
-                                profileData = store.getProfile()
-
-                                onSuccess()
-                            } catch (e: Exception) {
-                                errorMessage = "Gagal memuat profil: ${e.message}"
-                                onFailure(errorMessage!!)
-                            }
-                        }
-                    } else {
-                        errorMessage = "Gagal memuat UID user"
-                        onFailure(errorMessage!!)
-                    }
+                    // Login ke Firebase Authentication berhasil
+                    Log.d("LOGIN_CHECK", "Firebase Auth BERHASIL. UID: ${auth.currentUser?.uid}")
+                    onSuccess()
                 } else {
+                    // Login ke Firebase Authentication GAGAL
+                    Log.d("LOGIN_CHECK", "Firebase Auth GAGAL. Error: ${task.exception?.message}")
                     errorMessage = task.exception?.message ?: "Login gagal"
                     onFailure(errorMessage!!)
                 }
             }
-    }
 
 
-    fun signOut() {
-        auth.signOut()
+        fun signOut() {
+            auth.signOut()
+        }
     }
 }
