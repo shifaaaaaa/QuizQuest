@@ -43,10 +43,15 @@ class DashboardActivity : ComponentActivity() {
 @Composable
 fun DashboardScreen(navController: NavController, viewModel: DashboardViewModel = viewModel()) {
     val profile by viewModel.profileData.collectAsState()
-
+    val recentResults by viewModel.recentQuizResults.collectAsState()
     val backgroundGradient = Brush.verticalGradient(
         colors = listOf(Color(0xFF85E4DC), Color(0xFF3FA1B7))
     )
+
+    // Refresh data saat screen pertama kali dimuat
+    LaunchedEffect(Unit) {
+        viewModel.refreshQuizResults()
+    }
 
     Box(
         modifier = Modifier
@@ -71,7 +76,12 @@ fun DashboardScreen(navController: NavController, viewModel: DashboardViewModel 
             item { SummaryCards() }
             item { ActionButtons(navController = navController) }
             item { LeaderboardButton() }
-            item { RecentQuizzes() }
+            item {
+                RecentQuizzesSection(
+                    results = recentResults,
+                    onRefresh = { viewModel.refreshQuizResults() } // Tambah refresh button
+                )
+            }
         }
     }
 }
@@ -112,12 +122,12 @@ fun HeaderSection(
             Box(
                 modifier = Modifier.run {
                     size(48.dp)
-                                .clickable(
-                                    indication = androidx.compose.material3.ripple(bounded = true),
-                                    interactionSource = remember { MutableInteractionSource() }
-                                ) { expanded = true }
-                                .border(1.dp, Color.Gray, CircleShape)
-                                .shadow(2.dp, CircleShape)
+                        .clickable(
+                            indication = androidx.compose.material3.ripple(bounded = true),
+                            interactionSource = remember { MutableInteractionSource() }
+                        ) { expanded = true }
+                        .border(1.dp, Color.Gray, CircleShape)
+                        .shadow(2.dp, CircleShape)
                 }
             ) {
                 Image(
@@ -236,45 +246,47 @@ fun LeaderboardButton() {
 }
 
 @Composable
-fun RecentQuizzes() {
+fun RecentQuizzesSection(
+    results: List<QuizResultData>,
+    onRefresh: () -> Unit = {} // Tambah parameter refresh
+) {
     Column {
-        Text(
-            text = "Kuis Terbaru",
-            fontFamily = poppins,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Kuis Terbaru",
+                fontFamily = poppins,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+            // Tambah tombol refresh untuk debugging
+            TextButton(onClick = onRefresh) {
+                Text(
+                    text = "Refresh",
+                    color = Color.White,
+                    fontSize = 12.sp
+                )
+            }
+        }
         Spacer(modifier = Modifier.height(8.dp))
-        val quizzes = listOf(
-            "Quiz Musik", "Quiz Film", "Sejarah", "Bahasa Inggris",
-            "Matematika Dasar", "Trivia", "Lawak", "Tebak Gambar", "Kebudayaan Indonesia"
-        )
-        quizzes.forEach { quiz ->
-            Card(
+
+        if (results.isEmpty()) {
+            Text(
+                text = "Kamu belum mengerjakan kuis. Tap 'Refresh' untuk memuat ulang data.",
+                fontFamily = poppins,
+                color = Color.White.copy(alpha = 0.8f),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 4.dp),
-                shape = RoundedCornerShape(8.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = quiz,
-                        fontFamily = poppins,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Spacer(modifier = Modifier.weight(1f))
-                    Text(
-                        text = "Mulai",
-                        fontFamily = poppins,
-                        fontSize = 14.sp,
-                        color = Color.Blue
-                    )
+                    .padding(vertical = 16.dp)
+            )
+        } else {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                results.forEach { resultData ->
+                    RecentQuizCard(resultData = resultData)
                 }
             }
         }

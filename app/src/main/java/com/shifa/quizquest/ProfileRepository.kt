@@ -13,10 +13,10 @@ class ProfileRepository(private val context: Context, private val uid: String) {
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
-    // ✅ Simpan data ke Firestore (dengan imageIndex, bukan imageRes langsung!)
+    //Simpan data ke Firestore
     suspend fun saveProfileToFirestore(nickname: String, description: String, imageRes: Int) {
         val currentUid = auth.currentUser?.uid ?: return
-        val imageIndex = imageResToIndex(imageRes) // Simpan sebagai index (1–5)
+        val imageIndex = imageResToIndex(imageRes)
 
         val userMap = mapOf(
             "nickname" to nickname,
@@ -32,7 +32,7 @@ class ProfileRepository(private val context: Context, private val uid: String) {
             .await()
     }
 
-    // ✅ Ambil data dari Firestore → Konversi index ke imageRes
+    // Ambil data dari Firestore
     suspend fun getProfileFromFirestore(): ProfileData? {
         val currentUid = auth.currentUser?.uid ?: return null
         val snapshot = firestore.collection("userData")
@@ -56,7 +56,7 @@ class ProfileRepository(private val context: Context, private val uid: String) {
         } else null
     }
 
-    // ✅ Sinkronisasi dari cloud → ke local datastore
+    //Sinkronisasi dari cloud
     suspend fun syncProfileToLocal() {
         val profile = getProfileFromFirestore()
         val currentUid = auth.currentUser?.uid ?: return
@@ -70,7 +70,7 @@ class ProfileRepository(private val context: Context, private val uid: String) {
         }
     }
 
-    // ✅ Sinkronisasi dari local datastore → ke cloud
+    //Sinkronisasi dari local datastore
     suspend fun syncProfileToCloud() {
         val currentUid = auth.currentUser?.uid ?: return
         val store = ProfileDataStore(context, currentUid)
@@ -82,7 +82,7 @@ class ProfileRepository(private val context: Context, private val uid: String) {
         )
     }
 
-    // ✅ Konversi resource ID → index (1–5)
+    //Konversi resource id
     fun imageResToIndex(resId: Int): Int {
         return when (resId) {
             R.drawable.profile1 -> 1
@@ -94,7 +94,7 @@ class ProfileRepository(private val context: Context, private val uid: String) {
         }
     }
 
-    // ✅ Konversi index (1–5) → resource ID
+    // Konversi index (1–5)
     fun indexToImageRes(index: Int): Int {
         return when (index) {
             1 -> R.drawable.profile1

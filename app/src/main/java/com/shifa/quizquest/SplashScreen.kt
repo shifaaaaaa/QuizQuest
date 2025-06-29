@@ -1,5 +1,6 @@
 package com.shifa.quizquest
 
+import android.window.SplashScreen
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -14,9 +15,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.shifa.quizquest.ui.theme.poppins
 import kotlinx.coroutines.delay
 
@@ -193,4 +196,10 @@ fun SplashScreen(navController: NavController) {
                 .alpha(textAnimation.value)
         )
     }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun SplashScreenPreview() {
+    SplashScreen(navController = rememberNavController())
 }

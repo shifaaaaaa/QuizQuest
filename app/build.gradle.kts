@@ -110,4 +110,9 @@ dependencies {
 
     // Coroutines
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:latest_version")
+    // For DataStore:
+    implementation("androidx.datastore:datastore-preferences:latest_version")
+
 }

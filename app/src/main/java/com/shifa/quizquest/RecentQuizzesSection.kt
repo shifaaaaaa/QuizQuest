@@ -1,126 +1,96 @@
 package com.shifa.quizquest
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.shifa.quizquest.ui.theme.poppins
 
 @Composable
 fun RecentQuizzesSection(
-    quizResults: List<QuizResult>,
-    isLoading: Boolean,
-    onQuizClick: (QuizResult) -> Unit,
-    onSeeAllClick: () -> Unit,
+    results: List<QuizResultData>,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier.fillMaxWidth()
-    ) {
-        // Section header
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.History,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Kuis Terbaru",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+    Column(modifier = modifier.fillMaxWidth()) {
+        Text(
+            text = "Kuis Terbaru",
+            fontFamily = poppins,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
+        Spacer(modifier = Modifier.height(8.dp))
 
-            if (quizResults.isNotEmpty()) {
-                TextButton(onClick = onSeeAllClick) {
-                    Text("Lihat Semua")
+        if (results.isEmpty()) {
+            Text(
+                text = "Kamu belum mengerjakan kuis.",
+                fontFamily = poppins,
+                color = Color.White.copy(alpha = 0.8f),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp)
+            )
+        } else {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                results.forEach { resultData ->
+                    RecentQuizCard(resultData = resultData)
                 }
             }
         }
+    }
+}
 
-        Spacer(modifier = Modifier.height(16.dp))
+@Composable
+fun RecentQuizCard(resultData: QuizResultData) {
+    val result = resultData.toUiModel(id = "temp_id")
 
-        when {
-            isLoading -> {
-                // Loading state
-                repeat(3) {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(120.dp),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator()
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = result.quizTitle,
+                    fontFamily = poppins,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Pada: ${result.completedAtFormatted}",
+                    fontFamily = poppins,
+                    fontSize = 12.sp,
+                    color = Color.Gray
+                )
             }
-
-            quizResults.isEmpty() -> {
-                // Empty state
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(32.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.History,
-                            contentDescription = null,
-                            modifier = Modifier.size(48.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = "Belum ada riwayat kuis",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = "Mulai kerjakan kuis untuk melihat riwayat",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
-
-            else -> {
-                // Quiz results list
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(quizResults) { quizResult ->
-                        RecentQuizCard(
-                            quizResult = quizResult,
-                            onClick = { onQuizClick(quizResult) }
-                        )
-                    }
-                }
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    text = "${result.score}/${result.totalQuestions}",
+                    fontFamily = poppins,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = result.performanceColor
+                )
+                Text(
+                    text = "${result.percentage}%",
+                    fontFamily = poppins,
+                    fontSize = 12.sp,
+                    color = Color.Gray
+                )
             }
         }
     }
