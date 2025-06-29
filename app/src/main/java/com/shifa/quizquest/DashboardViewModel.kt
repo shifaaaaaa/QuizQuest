@@ -28,11 +28,14 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         dataStore.description,
         dataStore.imageId
     ) { nickname, description, imageId ->
-        val validImages = listOf(
-            R.drawable.profile1, R.drawable.profile2,
-            R.drawable.profile3, R.drawable.profile4, R.drawable.profile5
+        val imageResMap = mapOf(
+            1 to R.drawable.profile1,
+            2 to R.drawable.profile2,
+            3 to R.drawable.profile3,
+            4 to R.drawable.profile4,
+            5 to R.drawable.profile5
         )
-        val safeImage = if (imageId in validImages) imageId else R.drawable.profile1
+        val safeImage = imageResMap[imageId] ?: R.drawable.profile1
         ProfileData(nickname, description, safeImage)
     }.stateIn(
         scope = viewModelScope,
