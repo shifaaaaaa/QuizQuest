@@ -22,16 +22,12 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shifa.quizquest.ui.theme.poppins
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavController
-import com.google.firebase.auth.FirebaseAuth
-import com.shifa.quizquest.repository.ProfileRepository
-import kotlinx.coroutines.delay
 
 class DashboardActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,16 +42,7 @@ class DashboardActivity : ComponentActivity() {
 
 @Composable
 fun DashboardScreen(navController: NavController, viewModel: DashboardViewModel = viewModel()) {
-
     val profile by viewModel.profileData.collectAsState()
-    val isReady by viewModel.isReady
-
-    if (!isReady) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
-        }
-        return
-    }
 
     val backgroundGradient = Brush.verticalGradient(
         colors = listOf(Color(0xFF85E4DC), Color(0xFF3FA1B7))
