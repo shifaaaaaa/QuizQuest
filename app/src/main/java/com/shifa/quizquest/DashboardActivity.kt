@@ -24,6 +24,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.foundation.lazy.items
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shifa.quizquest.ui.theme.poppins
 import androidx.navigation.compose.rememberNavController
@@ -43,7 +44,7 @@ class DashboardActivity : ComponentActivity() {
 @Composable
 fun DashboardScreen(navController: NavController, viewModel: DashboardViewModel = viewModel()) {
     val profile by viewModel.profileData.collectAsState()
-
+    val recentResults by viewModel.recentQuizResults.collectAsState()
     val backgroundGradient = Brush.verticalGradient(
         colors = listOf(Color(0xFF85E4DC), Color(0xFF3FA1B7))
     )
@@ -71,7 +72,7 @@ fun DashboardScreen(navController: NavController, viewModel: DashboardViewModel 
             item { SummaryCards() }
             item { ActionButtons(navController = navController) }
             item { LeaderboardButton() }
-            item { RecentQuizzes() }
+            item { RecentQuizzesSection(results = recentResults)}
         }
     }
 }
@@ -236,7 +237,7 @@ fun LeaderboardButton() {
 }
 
 @Composable
-fun RecentQuizzes() {
+fun RecentQuizzesSection(results: List<QuizResultData>) { // Pastikan parameternya adalah List<QuizResultData>
     Column {
         Text(
             text = "Kuis Terbaru",
@@ -246,35 +247,21 @@ fun RecentQuizzes() {
             color = Color.White
         )
         Spacer(modifier = Modifier.height(8.dp))
-        val quizzes = listOf(
-            "Quiz Musik", "Quiz Film", "Sejarah", "Bahasa Inggris",
-            "Matematika Dasar", "Trivia", "Lawak", "Tebak Gambar", "Kebudayaan Indonesia"
-        )
-        quizzes.forEach { quiz ->
-            Card(
+
+        if (results.isEmpty()) {
+            Text(
+                text = "Kamu belum mengerjakan kuis.",
+                fontFamily = poppins,
+                color = Color.White.copy(alpha = 0.8f),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 4.dp),
-                shape = RoundedCornerShape(8.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = quiz,
-                        fontFamily = poppins,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Spacer(modifier = Modifier.weight(1f))
-                    Text(
-                        text = "Mulai",
-                        fontFamily = poppins,
-                        fontSize = 14.sp,
-                        color = Color.Blue
-                    )
+                    .padding(vertical = 16.dp)
+            )
+        } else {
+            // Hapus LazyColumn di dalam LazyColumn, gunakan Column biasa
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                results.forEach { resultData ->
+                    RecentQuizCard(resultData = resultData)
                 }
             }
         }

@@ -1,14 +1,48 @@
 package com.shifa.quizquest
 
-// Data class untuk soal
+import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.tasks.await
+
 data class Question(
     val text: String,
     val choices: List<String>,
     val correctAnswer: String
 )
 
-// Repository untuk menyimpan soal-soal berdasarkan tema
 object QuizRepository {
+
+    // HANYA ADA SATU FUNGSI saveQuizResult
+    suspend fun saveQuizResult(result: QuizResultData) {
+        val db = Firebase.firestore
+        try {
+            db.collection("quizResults").add(result).await()
+        } catch (e: Exception) {
+            println("Error saving quiz result: ${e.message}")
+        }
+    }
+
+    suspend fun getRecentResultsForUser(userId: String, limit: Long = 5): List<QuizResultData> {
+        val db = Firebase.firestore
+        val results = mutableListOf<QuizResultData>()
+        try {
+            val querySnapshot = db.collection("quizResults")
+                .whereEqualTo("userId", userId)
+                .orderBy("completedAt", Query.Direction.DESCENDING)
+                .limit(limit)
+                .get()
+                .await()
+            for (document in querySnapshot.documents) {
+                document.toObject(QuizResultData::class.java)?.let {
+                    results.add(it)
+                }
+            }
+        } catch (e: Exception) {
+            println("Error fetching recent results: ${e.message}")
+        }
+        return results
+    }
 
     fun getQuestionsByQuizId(quizId: Int): List<Question> {
         return when (quizId) {
@@ -22,6 +56,15 @@ object QuizRepository {
             8 -> getImageGuessQuestions() // Tebak Gambar
             9 -> getCultureQuestions() // Kebudayaan Indonesia
             else -> getGeneralQuestions() // Default
+        }
+    }
+
+    suspend fun saveQuizResult(result: QuizResult) {
+        val db = Firebase.firestore
+        try {
+            db.collection("quizResults").add(result).await()
+        } catch (e: Exception) {
+            println("Error saving quiz result: ${e.message}")
         }
     }
 
