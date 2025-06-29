@@ -5,18 +5,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.shifa.quizquest.datastore.ProfileDataStore
-import com.shifa.quizquest.repository.ProfileRepository
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+
 
 class SignupViewModel : ViewModel() {
     private val auth: FirebaseAuth = Firebase.auth
+    private val db = Firebase.firestore
 
     var username by mutableStateOf("")
         private set
@@ -80,37 +77,35 @@ class SignupViewModel : ViewModel() {
 
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
-                isLoading = false
                 if (task.isSuccessful) {
-                    val uid = auth.currentUser?.uid
-                    if (uid != null) {
-                        viewModelScope.launch {
-                            try {
-                                val profileDataStore = ProfileDataStore(context, uid)
-                                val repo = ProfileRepository(context, uid)
+                    val firebaseUser = auth.currentUser
+                    if (firebaseUser != null) {
+                        val userProfile = hashMapOf(
+                            "uid" to firebaseUser.uid,
+                            "username" to username,
+                            "email" to email,
+                            "createdAt" to com.google.firebase.firestore.FieldValue.serverTimestamp()
+                        )
 
-                                // 1. Simpan ke DataStore lokal
-                                profileDataStore.saveProfile(
-                                    nickname = username,
-                                    description = "Pengguna Baru",
-                                    imageId = R.drawable.profile1
-                                )
-
-                                // 2. Simpan juga ke Firestore
-                                repo.syncProfileToCloud()
-
+                        db.collection("users").document(firebaseUser.uid)
+                            .set(userProfile)
+                            .addOnSuccessListener {
+                                isLoading = false
                                 onSuccess()
-                            } catch (e: Exception) {
-                                errorMessage = "Gagal menyimpan data: ${e.message}"
+                            }
+                            .addOnFailureListener { e ->
+                                isLoading = false
+                                errorMessage = "Gagal menyimpan data profil: ${e.message}"
                                 onFailure(errorMessage!!)
                             }
-                        }
                     } else {
-                        errorMessage = "Sign Up gagal: UID tidak ditemukan"
+                        isLoading = false
+                        errorMessage = "Gagal mendapatkan data pengguna setelah pendaftaran."
                         onFailure(errorMessage!!)
                     }
                 } else {
-                    errorMessage = task.exception?.message ?: "Sign Up gagal"
+                    isLoading = false
+                    errorMessage = task.exception?.message ?: "Signup gagal"
                     onFailure(errorMessage!!)
                 }
             }

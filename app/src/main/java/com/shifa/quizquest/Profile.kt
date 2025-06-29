@@ -1,9 +1,11 @@
 package com.shifa.quizquest
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -13,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -20,27 +23,36 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.shifa.quizquest.ui.theme.poppins
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.ui.platform.LocalContext
-import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.shifa.quizquest.datastore.ProfileDataStore
-import com.shifa.quizquest.repository.ProfileRepository
+import com.shifa.quizquest.ui.theme.poppins
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-
 
 @Composable
 fun ProfileScreen(navController: NavController) {
+    val context = LocalContext.current
+    // Dapatkan UID pengguna saat ini dengan aman.
+    val currentUser = Firebase.auth.currentUser
+    val uid = currentUser?.uid
+
+    // State untuk input pengguna
     var nickname by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    var selectedImage by remember { mutableStateOf(R.drawable.profile1) }
-    val context = LocalContext.current
-    val uid = FirebaseAuth.getInstance().currentUser?.uid
-    val profileStore = remember(uid) { uid?.let { ProfileDataStore(context, it) } }
-    val repository = remember(uid) { uid?.let { ProfileRepository(context, it) } }
+    var selectedImageId by remember { mutableStateOf(R.drawable.profile1) }
+
     val coroutineScope = rememberCoroutineScope()
+
+    // Hanya buat DataStore jika UID valid, jika tidak, jangan lakukan apa-apa.
+    val profileStore = remember(uid) {
+        if (uid != null) {
+            ProfileDataStore(context, uid)
+        } else {
+            null
+        }
+    }
+
+    // Daftar gambar yang valid
     val profileImages = listOf(
         R.drawable.profile1,
         R.drawable.profile2,
@@ -48,79 +60,78 @@ fun ProfileScreen(navController: NavController) {
         R.drawable.profile4,
         R.drawable.profile5
     )
+
+    // Gunakan LaunchedEffect untuk memuat data profil saat pertama kali layar dibuka
+    // Hanya berjalan jika profileStore berhasil dibuat (UID tidak null)
+    LaunchedEffect(key1 = profileStore) {
+        profileStore?.let { store ->
+            store.nickname.collect { savedNickname -> nickname = savedNickname }
+        }
+        profileStore?.let { store ->
+            store.description.collect { savedDesc -> description = savedDesc }
+        }
+        profileStore?.let { store ->
+            store.imageId.collect { savedImageId ->
+                if (profileImages.contains(savedImageId)) {
+                    selectedImageId = savedImageId
+                }
+            }
+        }
+    }
+
     val backgroundGradient = Brush.horizontalGradient(
         colors = listOf(Color(0xFF85E4DC), Color(0xFF3FA1B7))
     )
 
-    // Load saved data
-    LaunchedEffect(uid) {
-        repository?.syncProfileToLocal()
-
-        profileStore?.let { store ->
-            val profile = store.getProfile()
-            val validImages = listOf(
-                R.drawable.profile1, R.drawable.profile2,
-                R.drawable.profile3, R.drawable.profile4, R.drawable.profile5
-            )
-
-            selectedImage = if (profile.imageRes in validImages) profile.imageRes else R.drawable.profile1
-            nickname = profile.nickname
-            description = profile.description
-        }
-    }
-
-
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(brush = backgroundGradient),
+        modifier = Modifier.fillMaxSize().background(brush = backgroundGradient),
         contentAlignment = Alignment.TopCenter
     ) {
-        LazyColumn(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .padding(12.dp)
-                .fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            item {
-                Spacer(modifier = Modifier.height(40.dp))
-                TitleSection()
+        if (uid == null || profileStore == null) {
+            // Tampilan jika pengguna tidak login atau UID tidak ditemukan
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text("Gagal memuat profil: Pengguna tidak ditemukan.", color = Color.White)
             }
-            item {
-                ProfileImage(selectedImage)
-            }
-            item {
-                NameSection(nickname = nickname)
-            }
-            item {
-                FormCard(
-                    profileImages = profileImages,
-                    onImageSelected = { selectedImage = it },
-                    nickname = nickname,
-                    onNicknameChange = { if (it.length <= 16) nickname = it },
-                    description = description,
-                    onDescriptionChange = { if (it.length <= 40) description = it },
-                    onSave = {
-                        coroutineScope.launch {
-                            profileStore?.let { store ->
-                                repository?.let { repo ->
-                                    val safeImage = if (selectedImage in profileImages) selectedImage else R.drawable.profile1
-
-                                    store.saveProfile(nickname, description, safeImage)
-
-                                    repo.syncProfileToCloud()
-
-                                    navController.navigate(Screen.Dashboard.route)
+        } else {
+            // Tampilan utama jika semua aman
+            LazyColumn(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(12.dp).fillMaxSize(),
+                contentPadding = PaddingValues(bottom = 32.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                item {
+                    Spacer(modifier = Modifier.height(40.dp))
+                    TitleSection()
+                }
+                item {
+                    ProfileImage(imageRes = selectedImageId)
+                }
+                item {
+                    NameSection(nickname = nickname)
+                }
+                item {
+                    FormCard(
+                        profileImages = profileImages,
+                        onImageSelected = { selectedImageId = it },
+                        nickname = nickname,
+                        onNicknameChange = { if (it.length <= 16) nickname = it },
+                        description = description,
+                        onDescriptionChange = { if (it.length <= 40) description = it },
+                        onSave = {
+                            coroutineScope.launch {
+                                // Panggil saveProfile dari instance dataStore yang aman
+                                profileStore.saveProfile(nickname, description, selectedImageId)
+                                navController.navigate(Screen.Dashboard.route) {
+                                    popUpTo(Screen.Dashboard.route) { inclusive = true }
                                 }
                             }
                         }
-                    }
-                )
-            }
-            item {
-                ReturnButton(onClick = { navController.navigate(Screen.Dashboard.route) })
+                    )
+                }
+                item {
+                    ReturnButton(onClick = { navController.popBackStack() })
+                }
             }
         }
     }

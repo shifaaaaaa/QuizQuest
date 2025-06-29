@@ -3,7 +3,11 @@ package com.shifa.quizquest
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+
 
 data class Question(
     val text: String,
@@ -12,7 +16,6 @@ data class Question(
 )
 
 object QuizRepository {
-
     suspend fun saveQuizResult(result: QuizResultData) {
         val db = Firebase.firestore
         try {
@@ -22,45 +25,41 @@ object QuizRepository {
         }
     }
 
-    suspend fun getRecentResultsForUser(userId: String, limit: Long = 5): List<QuizResultData> {
+    fun getRecentResultsForUser(userId: String, limit: Long = 5): Flow<List<QuizResultData>> = callbackFlow {
         val db = Firebase.firestore
-        val results = mutableListOf<QuizResultData>()
-        try {
-            val querySnapshot = db.collection("quizResults")
-                .whereEqualTo("userId", userId)
-                .orderBy("completedAt", Query.Direction.DESCENDING)
-                .limit(limit)
-                .get()
-                .await()
-            for (document in querySnapshot.documents) {
-                document.toObject(QuizResultData::class.java)?.let {
-                    results.add(it)
+        val listener = db.collection("quizResults")
+            .whereEqualTo("userId", userId)
+            .orderBy("completedAt", Query.Direction.DESCENDING)
+            .limit(limit)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+                if (snapshot != null) {
+                    val results = snapshot.toObjects(QuizResultData::class.java)
+                    trySend(results)
                 }
             }
-        } catch (e: Exception) {
-            println("Error fetching recent results: ${e.message}")
-        }
-        return results
+        awaitClose { listener.remove() }
     }
 
-    suspend fun getAllResultsForUser(userId: String): List<QuizResultData> {
+    fun getAllResultsForUser(userId: String): Flow<List<QuizResultData>> = callbackFlow {
         val db = Firebase.firestore
-        val results = mutableListOf<QuizResultData>()
-        try {
-            val querySnapshot = db.collection("quizResults")
-                .whereEqualTo("userId", userId)
-                .orderBy("completedAt", Query.Direction.DESCENDING)
-                .get()
-                .await()
-            for (document in querySnapshot.documents) {
-                document.toObject(QuizResultData::class.java)?.let {
-                    results.add(it)
+        val listener = db.collection("quizResults")
+            .whereEqualTo("userId", userId)
+            .orderBy("completedAt", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+                if (snapshot != null) {
+                    val results = snapshot.toObjects(QuizResultData::class.java)
+                    trySend(results)
                 }
             }
-        } catch (e: Exception) {
-            println("Error fetching all results for user: ${e.message}")
-        }
-        return results
+        awaitClose { listener.remove() }
     }
 
     fun getQuestionsByQuizId(quizId: Int): List<Question> {

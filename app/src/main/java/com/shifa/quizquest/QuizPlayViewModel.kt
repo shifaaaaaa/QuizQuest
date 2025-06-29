@@ -22,6 +22,7 @@ class QuizPlayViewModel : ViewModel() {
         totalQuestions: Int,
         startTime: Long
     ) {
+        Log.d("SAVE_PROCESS", "Fungsi saveQuizResult di ViewModel TELAH DIPANGGIL.")
         viewModelScope.launch {
             val quizEndTime = System.currentTimeMillis()
             val timeTakenSeconds = TimeUnit.MILLISECONDS.toSeconds(quizEndTime - startTime).toInt()
@@ -36,14 +37,14 @@ class QuizPlayViewModel : ViewModel() {
                     totalQuestions = totalQuestions,
                     timeTakenSeconds = timeTakenSeconds
                 )
-
-                Log.d("QuizPlayViewModel", "Menyimpan hasil: $resultData")
-                // Proses simpan sekarang aman di dalam viewModelScope
+                Log.d("VIEWMODEL_SAVE", "Memanggil QuizRepository.saveQuizResult dengan data: $resultData")
                 QuizRepository.saveQuizResult(resultData)
+                // Proses simpan sekarang aman di dalam viewModelScope
+                _finalResult.value = resultData.toUiModel("local_id")
                 // Setelah disimpan, update state agar UI bisa menampilkannya
                 _finalResult.value = resultData.toUiModel("local_id")
             } else {
-                Log.e("QuizPlayViewModel", "Gagal menyimpan, user tidak ditemukan.")
+                Log.e("VIEWMODEL_SAVE", "Gagal menyimpan, user tidak ditemukan.")
             }
         }
     }

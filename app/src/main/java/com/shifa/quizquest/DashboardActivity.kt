@@ -6,30 +6,26 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.*
-import androidx.compose.ui.graphics.*
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.core.view.WindowCompat
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.shifa.quizquest.ui.theme.poppins
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavController
-
+import androidx.navigation.compose.rememberNavController
+import com.shifa.quizquest.ui.theme.poppins
 
 @Composable
 fun DashboardScreen(navController: NavController, viewModel: DashboardViewModel = viewModel()) {
@@ -41,44 +37,36 @@ fun DashboardScreen(navController: NavController, viewModel: DashboardViewModel 
         colors = listOf(Color(0xFF85E4DC), Color(0xFF3FA1B7))
     )
 
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(brush = backgroundGradient)
+            .verticalScroll(rememberScrollState())
+            .padding(WindowInsets.statusBars.asPaddingValues())
+            .padding(horizontal = 16.dp)
     ) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(WindowInsets.statusBars.add(WindowInsets.navigationBars).asPaddingValues())
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            item {
-                HeaderSection(
-                    userName = profile.nickname.ifBlank { "Pengguna" },
-                    totalScore = stats.averageScore,
-                    imageResId = profile.imageRes,
-                    navController = navController
-                )
-            }
-            item {
-                SummaryCards(
-                    quizzesTaken = stats.quizzesTaken,
-                    averageScore = stats.averageScore,
-                    accuracy = stats.accuracy
-                )
-            }
-            item { ActionButtons(navController = navController) }
-            item { LeaderboardButton() }
-            item {
-                // Panggilan ini sekarang tidak akan ambigu lagi
-                // setelah duplikatnya dihapus.
-                RecentQuizzesSection(results = recentResults)
-            }
-        }
+        Spacer(modifier = Modifier.height(16.dp))
+        HeaderSection(
+            userName = profile.nickname.ifBlank { "Pengguna" },
+            totalScore = stats.accuracy,
+            imageResId = profile.imageRes,
+            navController = navController
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        SummaryCards(
+            quizzesTaken = stats.quizzesTaken,
+            averageScore = stats.averageScore,
+            accuracy = stats.accuracy
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        ActionButtons(navController = navController)
+        Spacer(modifier = Modifier.height(16.dp))
+        LeaderboardButton()
+        Spacer(modifier = Modifier.height(16.dp))
+        RecentQuizzesSection(results = recentResults)
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
-
 
 @Composable
 fun HeaderSection(
@@ -236,8 +224,59 @@ fun LeaderboardButton() {
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+
+// --- FUNGSI INI SEKARANG ADA DI SINI ---
 @Composable
-fun DashboardPreview() {
-    DashboardScreen(navController = rememberNavController())
+fun RecentQuizzesSection(results: List<QuizResultData>) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = "Kuis Terbaru",
+            fontFamily = poppins,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        if (results.isEmpty()) {
+            Text(
+                "Kamu belum mengerjakan kuis.",
+                fontFamily = poppins,
+                color = Color.White.copy(alpha = 0.8f),
+                modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp)
+            )
+        } else {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                results.forEach { resultData ->
+                    RecentQuizCard(resultData = resultData)
+                }
+            }
+        }
+    }
+}
+
+// --- FUNGSI INI JUGA SEKARANG ADA DI SINI ---
+@Composable
+fun RecentQuizCard(resultData: QuizResultData) {
+    val result = resultData.toUiModel(id = "temp_id")
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = result.quizTitle, fontFamily = poppins, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(text = "Pada: ${result.completedAtFormatted}", fontFamily = poppins, fontSize = 12.sp, color = Color.Gray)
+            }
+            Column(horizontalAlignment = Alignment.End) {
+                Text(text = "${result.score}/${result.totalQuestions}", fontFamily = poppins, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = result.performanceColor)
+                Text(text = "${result.percentage}%", fontFamily = poppins, fontSize = 12.sp, color = Color.Gray)
+            }
+        }
+    }
 }

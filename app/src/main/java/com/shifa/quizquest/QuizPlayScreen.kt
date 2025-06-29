@@ -1,6 +1,5 @@
 package com.shifa.quizquest
 
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -10,18 +9,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import com.shifa.quizquest.ui.theme.poppins
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,10 +42,8 @@ fun QuizPlayScreen(
     var currentIndex by remember { mutableStateOf(0) }
     var selectedAnswer by remember { mutableStateOf<String?>(null) }
     var score by remember { mutableStateOf(0) }
-    var showResult by remember { mutableStateOf(false) }
     var timeLeft by remember { mutableStateOf(30) }
 
-    val coroutineScope = rememberCoroutineScope()
     val quizStartTime by remember { mutableStateOf(System.currentTimeMillis()) }
     val finalResult by viewModel.finalResult.collectAsState()
 
@@ -62,6 +53,19 @@ fun QuizPlayScreen(
         while (timeLeft > 0) {
             delay(1000L)
             timeLeft--
+        }
+        if (selectedAnswer == null && timeLeft == 0) {
+            if (currentIndex < questions.lastIndex) {
+                currentIndex++
+            } else {
+                viewModel.saveQuizResult(
+                    quizId = quizId,
+                    quizInfo = quizInfo,
+                    score = score,
+                    totalQuestions = questions.size,
+                    startTime = quizStartTime
+                )
+            }
         }
     }
 
@@ -76,15 +80,34 @@ fun QuizPlayScreen(
             }
         )
     } else {
-        // Tampilan pengerjaan kuis
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text(text = quizInfo, fontFamily = poppins, fontSize = 18.sp, fontWeight = FontWeight.Bold) },
-                    navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.Default.ArrowBack, contentDescription = "Back") } },
+                    title = {
+                        Text(
+                            text = quizInfo,
+                            fontFamily = poppins,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        }
+                    },
                     actions = {
-                        Card(colors = CardDefaults.cardColors(containerColor = if (timeLeft > 10) Color(0xFF4CAF50) else Color(0xFFF44336))) {
-                            Text("⏳ $timeLeft", modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), color = Color.White, fontWeight = FontWeight.Bold)
+                        Card(
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (timeLeft > 10) Color(0xFF4CAF50) else Color(0xFFF44336)
+                            )
+                        ) {
+                            Text(
+                                "⏳ $timeLeft",
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
                     }
                 )
@@ -92,43 +115,106 @@ fun QuizPlayScreen(
         ) { paddingValues ->
             val question = questions.getOrNull(currentIndex)
             if (question != null) {
-                Column(modifier = Modifier.fillMaxSize().padding(paddingValues).padding(24.dp)) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .padding(24.dp)
+                ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Soal ${currentIndex + 1} dari ${questions.size}", fontSize = 14.sp, fontFamily = poppins, color = Color.Gray)
-                        Text("Skor: $score", fontSize = 14.sp, fontFamily = poppins, fontWeight = FontWeight.Bold, color = Color(0xFF3FA1B7))
+                        Text(
+                            "Soal ${currentIndex + 1} dari ${questions.size}",
+                            fontSize = 14.sp,
+                            fontFamily = poppins,
+                            color = Color.Gray
+                        )
+                        Text(
+                            "Skor: $score",
+                            fontSize = 14.sp,
+                            fontFamily = poppins,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF3FA1B7)
+                        )
                     }
+
                     Spacer(modifier = Modifier.height(8.dp))
-                    LinearProgressIndicator(progress = (currentIndex + 1).toFloat() / questions.size, modifier = Modifier.fillMaxWidth(), color = Color(0xFF3FA1B7))
+                    LinearProgressIndicator(
+                        progress = (currentIndex + 1).toFloat() / questions.size,
+                        modifier = Modifier.fillMaxWidth(),
+                        color = Color(0xFF3FA1B7)
+                    )
                     Spacer(modifier = Modifier.height(32.dp))
-                    Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = Color(0xFF3FA1B7).copy(alpha = 0.1f))) {
-                        Text(text = question.text, fontSize = 20.sp, fontWeight = FontWeight.Bold, fontFamily = poppins, modifier = Modifier.padding(20.dp), lineHeight = 28.sp)
+
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFF3FA1B7).copy(alpha = 0.1f))
+                    ) {
+                        Text(
+                            text = question.text,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = poppins,
+                            modifier = Modifier.padding(20.dp),
+                            lineHeight = 28.sp
+                        )
                     }
+
                     Spacer(modifier = Modifier.height(32.dp))
+
                     question.choices.forEachIndexed { index, choice ->
                         val isSelected = choice == selectedAnswer
                         val optionLabel = listOf("A", "B", "C", "D")[index]
                         Card(
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 6.dp),
                             onClick = { selectedAnswer = choice },
-                            colors = CardDefaults.cardColors(containerColor = if (isSelected) Color(0xFF3FA1B7) else Color.White),
-                            border = CardDefaults.outlinedCardBorder().copy(width = if (isSelected) 2.dp else 1.dp)
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (isSelected) Color(0xFF3FA1B7) else Color.White
+                            ),
+                            border = CardDefaults.outlinedCardBorder()
+                                .copy(width = if (isSelected) 2.dp else 1.dp)
                         ) {
-                            Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Card(colors = CardDefaults.cardColors(containerColor = if (isSelected) Color.White else Color(0xFF3FA1B7)), modifier = Modifier.size(32.dp)) {
-                                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                        Text(text = optionLabel, color = if (isSelected) Color(0xFF3FA1B7) else Color.White, fontWeight = FontWeight.Bold, fontFamily = poppins)
+                            Row(
+                                modifier = Modifier.padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Card(
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = if (isSelected) Color.White else Color(0xFF3FA1B7)
+                                    ),
+                                    modifier = Modifier.size(32.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = optionLabel,
+                                            color = if (isSelected) Color(0xFF3FA1B7) else Color.White,
+                                            fontWeight = FontWeight.Bold,
+                                            fontFamily = poppins
+                                        )
                                     }
                                 }
                                 Spacer(modifier = Modifier.width(16.dp))
-                                Text(text = choice, color = if (isSelected) Color.White else Color.Black, fontSize = 16.sp, fontFamily = poppins, modifier = Modifier.weight(1f))
+                                Text(
+                                    text = choice,
+                                    color = if (isSelected) Color.White else Color.Black,
+                                    fontSize = 16.sp,
+                                    fontFamily = poppins,
+                                    modifier = Modifier.weight(1f)
+                                )
                             }
                         }
                     }
+
                     Spacer(modifier = Modifier.weight(1f))
+
                     Button(
                         onClick = {
                             if (selectedAnswer == question.correctAnswer) {
@@ -147,51 +233,102 @@ fun QuizPlayScreen(
                             }
                         },
                         enabled = selectedAnswer != null,
-                        modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp)
                     ) {
-                        Text(if (currentIndex == questions.lastIndex) "Lihat Hasil" else "Lanjut")
+                        Text(
+                            if (currentIndex == questions.lastIndex) "Lihat Hasil" else "Lanjut",
+                            fontFamily = poppins
+                        )
                     }
                 }
             } else {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
                     Text("Soal tidak dapat dimuat.")
                 }
             }
         }
     }
 }
-// Composable untuk menampilkan hasil (pastikan sudah ada dan benar)
+
 @Composable
-fun QuizResultDisplay(result: QuizResult, navController: NavController, onPlayAgain: () -> Unit) {
+fun QuizResultDisplay(
+    result: QuizResult,
+    navController: NavController,
+    onPlayAgain: () -> Unit
+) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(32.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(32.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("🎉 Kuis Selesai! 🎉", fontSize = 28.sp, fontWeight = FontWeight.Bold, fontFamily = poppins)
+        Text(
+            "🎉 Kuis Selesai! 🎉",
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Bold,
+            fontFamily = poppins
+        )
         Spacer(modifier = Modifier.height(16.dp))
-        Text(result.quizTitle, fontSize = 20.sp, fontFamily = poppins, color = Color.Gray)
+        Text(
+            result.quizTitle,
+            fontSize = 20.sp,
+            fontFamily = poppins,
+            color = Color.Gray
+        )
         Spacer(modifier = Modifier.height(24.dp))
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = result.performanceColor.copy(alpha = 0.1f))
+            colors = CardDefaults.cardColors(
+                containerColor = result.performanceColor.copy(alpha = 0.1f)
+            )
         ) {
-            Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Text("Skor Akhir", fontSize = 16.sp, fontFamily = poppins, color = Color.Gray)
-                Text("${result.score} / ${result.totalQuestions}", fontSize = 36.sp, fontWeight = FontWeight.Bold, fontFamily = poppins, color = result.performanceColor)
-                Text("${result.percentage}%", fontSize = 18.sp, fontFamily = poppins, color = result.performanceColor)
+                Text(
+                    "${result.score} / ${result.totalQuestions}",
+                    fontSize = 36.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = poppins,
+                    color = result.performanceColor
+                )
+                Text(
+                    "${result.percentage}%",
+                    fontSize = 18.sp,
+                    fontFamily = poppins,
+                    color = result.performanceColor
+                )
                 Spacer(modifier = Modifier.height(16.dp))
                 result.performanceText?.let {
-                    Text(it, fontSize = 16.sp, fontFamily = poppins, fontWeight = FontWeight.Medium)
+                    Text(
+                        it,
+                        fontSize = 16.sp,
+                        fontFamily = poppins,
+                        fontWeight = FontWeight.Medium
+                    )
                 }
             }
         }
         Spacer(modifier = Modifier.height(32.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            OutlinedButton(onClick = { navController.popBackStack() }, modifier = Modifier.weight(1f)) {
+            OutlinedButton(
+                onClick = { navController.popBackStack() },
+                modifier = Modifier.weight(1f)
+            ) {
                 Text("Kembali", fontFamily = poppins)
             }
-            Button(onClick = onPlayAgain, modifier = Modifier.weight(1f)) {
+            Button(
+                onClick = onPlayAgain,
+                modifier = Modifier.weight(1f)
+            ) {
                 Text("Main Lagi", fontFamily = poppins)
             }
         }
