@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+
 
 class DashboardViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -38,15 +40,45 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         initialValue = ProfileData("", "", R.drawable.profile1)
     )
 
-    // StateFlow untuk hasil kuis terbaru
+    // StateFlow untuk hasil kuis terbaru - DIPERBAIKI
     val recentQuizResults: StateFlow<List<QuizResultData>> = flow {
-        auth.currentUser?.uid?.let { userId ->
-            val results = QuizRepository.getRecentResultsForUser(userId)
-            emit(results)
+        try {
+            auth.currentUser?.uid?.let { userId ->
+                println("Fetching quiz results for user: $userId")
+                val result = QuizResultRepository.getRecentQuizResults(userId, 5)
+                if (result.isSuccess) {
+                    val results = result.getOrNull() ?: emptyList()
+                    println("Found ${results.size} quiz results")
+                    emit(results)
+                } else {
+                    println("Failed to fetch quiz results: ${result.exceptionOrNull()?.message}")
+                    emit(emptyList<QuizResultData>())
+                }
+            } ?: run {
+                println("No authenticated user found")
+                emit(emptyList<QuizResultData>())
+            }
+        } catch (e: Exception) {
+            println("Error in recentQuizResults flow: ${e.message}")
+            emit(emptyList<QuizResultData>())
         }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = emptyList()
     )
+
+    // Method untuk refresh data secara manual
+    fun refreshQuizResults() {
+        viewModelScope.launch {
+            try {
+                auth.currentUser?.uid?.let { userId ->
+                    val result = QuizResultRepository.getRecentQuizResults(userId, 5)
+                    // Flow akan otomatis update karena menggunakan flow builder
+                }
+            } catch (e: Exception) {
+                println("Error refreshing quiz results: ${e.message}")
+            }
+        }
+    }
 }

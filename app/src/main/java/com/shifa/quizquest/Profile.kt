@@ -54,10 +54,8 @@ fun ProfileScreen(navController: NavController) {
 
     // Load saved data
     LaunchedEffect(uid) {
-        // Sinkronisasi Firestore DataStore
         repository?.syncProfileToLocal()
 
-        // Setelah sinkronisasi, ambil dari DataStore
         profileStore?.let { store ->
             val profile = store.getProfile()
             val validImages = listOf(
@@ -110,10 +108,8 @@ fun ProfileScreen(navController: NavController) {
                                 repository?.let { repo ->
                                     val safeImage = if (selectedImage in profileImages) selectedImage else R.drawable.profile1
 
-                                    // 1. Simpan ke DataStore
                                     store.saveProfile(nickname, description, safeImage)
 
-                                    // 2. Simpan ke Firestore (dalam bentuk index, bukan resId)
                                     repo.syncProfileToCloud()
 
                                     navController.navigate(Screen.Dashboard.route)
@@ -160,7 +156,7 @@ fun NameSection(nickname: String) {
             .padding(horizontal = 24.dp, vertical = 8.dp)
     ) {
         Text(
-            text = nickname.ifEmpty { "Nama Karakter" }, //Default
+            text = nickname.ifEmpty { "Nama Karakter" },
             fontFamily = poppins,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold

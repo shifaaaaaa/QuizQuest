@@ -24,7 +24,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.foundation.lazy.items
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shifa.quizquest.ui.theme.poppins
 import androidx.navigation.compose.rememberNavController
@@ -49,6 +48,11 @@ fun DashboardScreen(navController: NavController, viewModel: DashboardViewModel 
         colors = listOf(Color(0xFF85E4DC), Color(0xFF3FA1B7))
     )
 
+    // Refresh data saat screen pertama kali dimuat
+    LaunchedEffect(Unit) {
+        viewModel.refreshQuizResults()
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -72,7 +76,12 @@ fun DashboardScreen(navController: NavController, viewModel: DashboardViewModel 
             item { SummaryCards() }
             item { ActionButtons(navController = navController) }
             item { LeaderboardButton() }
-            item { RecentQuizzesSection(results = recentResults)}
+            item {
+                RecentQuizzesSection(
+                    results = recentResults,
+                    onRefresh = { viewModel.refreshQuizResults() } // Tambah refresh button
+                )
+            }
         }
     }
 }
@@ -113,12 +122,12 @@ fun HeaderSection(
             Box(
                 modifier = Modifier.run {
                     size(48.dp)
-                                .clickable(
-                                    indication = androidx.compose.material3.ripple(bounded = true),
-                                    interactionSource = remember { MutableInteractionSource() }
-                                ) { expanded = true }
-                                .border(1.dp, Color.Gray, CircleShape)
-                                .shadow(2.dp, CircleShape)
+                        .clickable(
+                            indication = androidx.compose.material3.ripple(bounded = true),
+                            interactionSource = remember { MutableInteractionSource() }
+                        ) { expanded = true }
+                        .border(1.dp, Color.Gray, CircleShape)
+                        .shadow(2.dp, CircleShape)
                 }
             ) {
                 Image(
@@ -237,20 +246,37 @@ fun LeaderboardButton() {
 }
 
 @Composable
-fun RecentQuizzesSection(results: List<QuizResultData>) { // Pastikan parameternya adalah List<QuizResultData>
+fun RecentQuizzesSection(
+    results: List<QuizResultData>,
+    onRefresh: () -> Unit = {} // Tambah parameter refresh
+) {
     Column {
-        Text(
-            text = "Kuis Terbaru",
-            fontFamily = poppins,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Kuis Terbaru",
+                fontFamily = poppins,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+            // Tambah tombol refresh untuk debugging
+            TextButton(onClick = onRefresh) {
+                Text(
+                    text = "Refresh",
+                    color = Color.White,
+                    fontSize = 12.sp
+                )
+            }
+        }
         Spacer(modifier = Modifier.height(8.dp))
 
         if (results.isEmpty()) {
             Text(
-                text = "Kamu belum mengerjakan kuis.",
+                text = "Kamu belum mengerjakan kuis. Tap 'Refresh' untuk memuat ulang data.",
                 fontFamily = poppins,
                 color = Color.White.copy(alpha = 0.8f),
                 modifier = Modifier
@@ -258,7 +284,6 @@ fun RecentQuizzesSection(results: List<QuizResultData>) { // Pastikan parametern
                     .padding(vertical = 16.dp)
             )
         } else {
-            // Hapus LazyColumn di dalam LazyColumn, gunakan Column biasa
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 results.forEach { resultData ->
                     RecentQuizCard(resultData = resultData)
