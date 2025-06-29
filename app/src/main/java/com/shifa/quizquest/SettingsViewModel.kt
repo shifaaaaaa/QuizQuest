@@ -2,77 +2,52 @@ package com.shifa.quizquest.viewmodel
 
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.launch
 
 class SettingsViewModel : ViewModel() {
     private val auth = FirebaseAuth.getInstance()
 
-    var currentEmail by mutableStateOf("")
-    var newEmail by mutableStateOf("")
-    var oldPassword by mutableStateOf("")
+    // Password change fields
+    var currentPasswordForPassword by mutableStateOf("")
     var newPassword by mutableStateOf("")
 
+    // UI states
     var message by mutableStateOf<String?>(null)
-    var loading by mutableStateOf(false)
-
-    fun changeEmail(onSuccess: () -> Unit, onFailure: (String) -> Unit) {
-        val user = auth.currentUser
-        val credential = EmailAuthProvider.getCredential(currentEmail, oldPassword)
-
-        if (user != null) {
-            loading = true
-            user.reauthenticate(credential).addOnCompleteListener { reauthTask ->
-                if (reauthTask.isSuccessful) {
-                    user.updateEmail(newEmail).addOnCompleteListener { updateTask ->
-                        loading = false
-                        if (updateTask.isSuccessful) {
-                            message = "Email berhasil diubah."
-                            onSuccess()
-                        } else {
-                            message = updateTask.exception?.message
-                            onFailure(message ?: "Gagal mengubah email.")
-                        }
-                    }
-                } else {
-                    loading = false
-                    message = reauthTask.exception?.message
-                    onFailure(message ?: "Re-autentikasi gagal.")
-                }
-            }
-        } else {
-            onFailure("User tidak terautentikasi.")
-        }
-    }
+    var isLoading by mutableStateOf(false)
 
     fun changePassword(onSuccess: () -> Unit, onFailure: (String) -> Unit) {
         val user = auth.currentUser
-        val credential = EmailAuthProvider.getCredential(currentEmail, oldPassword)
+        val currentEmail = user?.email
 
-        if (user != null) {
-            loading = true
-            user.reauthenticate(credential).addOnCompleteListener { reauthTask ->
-                if (reauthTask.isSuccessful) {
-                    user.updatePassword(newPassword).addOnCompleteListener { updateTask ->
-                        loading = false
-                        if (updateTask.isSuccessful) {
-                            message = "Password berhasil diubah."
-                            onSuccess()
-                        } else {
-                            message = updateTask.exception?.message
-                            onFailure(message ?: "Gagal mengubah password.")
-                        }
-                    }
-                } else {
-                    loading = false
-                    message = reauthTask.exception?.message
-                    onFailure(message ?: "Re-autentikasi gagal.")
-                }
-            }
-        } else {
-            onFailure("User tidak terautentikasi.")
+        if (user == null || currentEmail.isNullOrEmpty()) {
+            onFailure("User tidak ditemukan.")
+            return
         }
+
+        if (currentPasswordForPassword.isBlank() || newPassword.isBlank()) {
+            onFailure("Field password tidak boleh kosong.")
+            return
+        }
+
+        val credential = EmailAuthProvider.getCredential(currentEmail, currentPasswordForPassword)
+
+        isLoading = true
+        user.reauthenticate(credential)
+            .addOnSuccessListener {
+                user.updatePassword(newPassword)
+                    .addOnSuccessListener {
+                        isLoading = false
+                        onSuccess()
+                    }
+                    .addOnFailureListener {
+                        isLoading = false
+                        onFailure("Gagal ubah password: ${it.message}")
+                    }
+            }
+            .addOnFailureListener {
+                isLoading = false
+                onFailure("Re-auth gagal: ${it.message}")
+            }
     }
 }
